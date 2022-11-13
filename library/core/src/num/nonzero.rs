@@ -422,6 +422,21 @@ macro_rules! nonzero_unsigned_operations {
                     unsafe { $Ty::new_unchecked(self.get().unchecked_add(other)) }
                 }
 
+                /// Subtracts one from nonzero integer.
+                ///
+                /// If an integer is nonzero, we can safely subtract one without worrying about overflow.
+                #[unstable(feature = "safe_increment_decrement", issue = "none")]
+                #[rustc_const_unstable(feature = "safe_increment_decrement", issue = "none")]
+                #[must_use = "this returns the result of the operation, \
+                              without modifying the original"]
+                #[inline]
+                pub const fn decrement(self) -> $Int {
+                    let int = self.get();
+
+                    // SAFETY: This cannot overflow, as the integer is nonzero.
+                    unsafe { int.unchecked_sub(1) }
+                }
+
                 /// Returns the smallest power of two greater than or equal to n.
                 /// Checks for overflow and returns [`None`]
                 /// if the next power of two is greater than the type’s maximum value.

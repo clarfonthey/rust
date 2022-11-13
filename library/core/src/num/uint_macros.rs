@@ -510,6 +510,38 @@ macro_rules! uint_impl {
             if unlikely!(b) {None} else {Some(a)}
         }
 
+        /// Adds one to integer, returning `None` on overflow.
+        ///
+        /// This is a safe way to convert from an integer that may be zero into
+        /// on that is definitely nonzero.
+        #[unstable(feature = "safe_increment_decrement", issue = "none")]
+        #[rustc_const_unstable(feature = "safe_increment_decrement", issue = "none")]
+        #[must_use = "this returns the result of the operation, \
+                      without modifying the original"]
+        #[inline]
+        pub const fn checked_increment(self) -> Option<$NonZeroT> {
+            let inc = self.checked_add(1);
+
+            // SAFETY: Incrementing integer without overflow ensures it's nonzero.
+            inc.map(|inc| unsafe { <$NonZeroT>::new_unchecked(inc) })
+        }
+
+        /// Adds one to integer, saturating on overflow.
+        ///
+        /// This is a safe way to convert from an integer that may be zero into
+        /// on that is definitely nonzero.
+        #[unstable(feature = "safe_increment_decrement", issue = "none")]
+        #[rustc_const_unstable(feature = "safe_increment_decrement", issue = "none")]
+        #[must_use = "this returns the result of the operation, \
+                      without modifying the original"]
+        #[inline]
+        pub const fn saturating_increment(self) -> $NonZeroT {
+            let inc = self.saturating_add(1);
+
+            // SAFETY: Incrementing integer without overflow ensures it's nonzero.
+            unsafe { <$NonZeroT>::new_unchecked(inc) }
+        }
+
         /// Checked integer subtraction. Computes `self - rhs`, returning
         /// `None` if overflow occurred.
         ///
