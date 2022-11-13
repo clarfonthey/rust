@@ -731,6 +731,23 @@ impl<'a> CStrBytes<'a> {
         // the nul terminator.
         unsafe { *self.ptr.as_ref() == 0 }
     }
+
+    /// Returns the remainder of the string as a slice.
+    #[unstable(feature = "cstr_bytes", issue = "none")]
+    #[inline]
+    pub fn as_c_str(&self) -> &'a CStr {
+        // SAFETY: We start with a valid C string and never increment beyond the
+        // nul terminator, retaining a valid C string, even if it's empty.
+        unsafe { CStr::from_ptr(self.ptr.as_ptr() as *mut u8 as *const c_char) }
+    }
+}
+
+#[unstable(feature = "cstr_bytes", issue = "none")]
+impl AsRef<CStr> for CStrBytes<'_> {
+    #[inline]
+    fn as_ref(&self) -> &CStr {
+        self.as_c_str()
+    }
 }
 
 #[unstable(feature = "cstr_bytes", issue = "none")]
