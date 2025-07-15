@@ -433,7 +433,8 @@ macro_rules! saturating_impl {
         const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl Not for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const Not for Saturating<$t> {
             type Output = Saturating<$t>;
 
             #[inline]
@@ -442,10 +443,13 @@ macro_rules! saturating_impl {
             }
         }
         forward_ref_unop! { impl Not, not for Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitXor for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitXor for Saturating<$t> {
             type Output = Saturating<$t>;
 
             #[inline]
@@ -454,30 +458,39 @@ macro_rules! saturating_impl {
             }
         }
         forward_ref_binop! { impl BitXor, bitxor for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitXorAssign for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitXorAssign for Saturating<$t> {
             #[inline]
             fn bitxor_assign(&mut self, other: Saturating<$t>) {
                 *self = *self ^ other;
             }
         }
         forward_ref_op_assign! { impl BitXorAssign, bitxor_assign for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_assign_impl", since = "1.74.0")]
-        impl BitXorAssign<$t> for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitXorAssign<$t> for Saturating<$t> {
             #[inline]
             fn bitxor_assign(&mut self, other: $t) {
                 *self = *self ^ Saturating(other);
             }
         }
         forward_ref_op_assign! { impl BitXorAssign, bitxor_assign for Saturating<$t>, $t,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitOr for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitOr for Saturating<$t> {
             type Output = Saturating<$t>;
 
             #[inline]
@@ -486,30 +499,39 @@ macro_rules! saturating_impl {
             }
         }
         forward_ref_binop! { impl BitOr, bitor for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitOrAssign for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitOrAssign for Saturating<$t> {
             #[inline]
             fn bitor_assign(&mut self, other: Saturating<$t>) {
                 *self = *self | other;
             }
         }
         forward_ref_op_assign! { impl BitOrAssign, bitor_assign for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_assign_impl", since = "1.74.0")]
-        impl BitOrAssign<$t> for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitOrAssign<$t> for Saturating<$t> {
             #[inline]
             fn bitor_assign(&mut self, other: $t) {
                 *self = *self | Saturating(other);
             }
         }
         forward_ref_op_assign! { impl BitOrAssign, bitor_assign for Saturating<$t>, $t,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitAnd for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitAnd for Saturating<$t> {
             type Output = Saturating<$t>;
 
             #[inline]
@@ -518,27 +540,35 @@ macro_rules! saturating_impl {
             }
         }
         forward_ref_binop! { impl BitAnd, bitand for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_impl", since = "1.74.0")]
-        impl BitAndAssign for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitAndAssign for Saturating<$t> {
             #[inline]
             fn bitand_assign(&mut self, other: Saturating<$t>) {
                 *self = *self & other;
             }
         }
         forward_ref_op_assign! { impl BitAndAssign, bitand_assign for Saturating<$t>, Saturating<$t>,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
         #[stable(feature = "saturating_int_assign_impl", since = "1.74.0")]
-        impl BitAndAssign<$t> for Saturating<$t> {
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")]
+        impl const BitAndAssign<$t> for Saturating<$t> {
             #[inline]
             fn bitand_assign(&mut self, other: $t) {
                 *self = *self & Saturating(other);
             }
         }
         forward_ref_op_assign! { impl BitAndAssign, bitand_assign for Saturating<$t>, $t,
-        #[stable(feature = "saturating_int_impl", since = "1.74.0")] }
+        #[stable(feature = "saturating_int_impl", since = "1.74.0")]
+        #[rustc_const_unstable(feature = "const_bit_ops", issue = "143802")],
+        const }
 
     )*)
 }
