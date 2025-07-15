@@ -1,6 +1,7 @@
 #![allow(clippy::useless_vec)]
 #![warn(clippy::assign_op_pattern)]
-#![feature(const_trait_impl, const_ops)]
+#![feature(const_arith_ops)]
+#![feature(const_trait_impl)]
 
 use core::num::Wrapping;
 use std::ops::{Mul, MulAssign};
