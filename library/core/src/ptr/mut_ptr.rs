@@ -1687,6 +1687,19 @@ impl<T: PointeeSized> *mut T {
     }
 }
 
+impl<T> *mut MaybeUninit<T> {
+    /// Casts from a maybe-uninitialized type to its initialized version.
+    ///
+    /// This is always safe, since UB can only occur if the pointer is read
+    /// before being initialized.
+    #[must_use]
+    #[inline(always)]
+    #[unstable(feature = "pointer_cast_init", issue = "63569")]
+    pub const fn cast_init(self) -> *mut T {
+        self as _
+    }
+}
+
 impl<T> *mut [T] {
     /// Returns the length of a raw slice.
     ///

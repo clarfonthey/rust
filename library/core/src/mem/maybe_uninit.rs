@@ -1027,20 +1027,6 @@ impl<T> MaybeUninit<T> {
         unsafe { slice.assume_init_mut() }
     }
 
-    /// Gets a pointer to the first element of the array.
-    #[unstable(feature = "maybe_uninit_slice", issue = "63569")]
-    #[inline(always)]
-    pub const fn slice_as_ptr(this: &[MaybeUninit<T>]) -> *const T {
-        this.as_ptr() as *const T
-    }
-
-    /// Gets a mutable pointer to the first element of the array.
-    #[unstable(feature = "maybe_uninit_slice", issue = "63569")]
-    #[inline(always)]
-    pub const fn slice_as_mut_ptr(this: &mut [MaybeUninit<T>]) -> *mut T {
-        this.as_mut_ptr() as *mut T
-    }
-
     /// Deprecated version of [`slice::write_copy_of_slice`].
     #[unstable(feature = "maybe_uninit_write_slice", issue = "79995")]
     #[deprecated(
