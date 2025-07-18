@@ -1194,7 +1194,7 @@ impl<T> [MaybeUninit<T>] {
     /// Fills a slice with elements returned by calling a closure for each index.
     ///
     /// This method uses a closure to create new values. If you'd rather `Clone` a given value, use
-    /// [`MaybeUninit::fill`]. If you want to use the `Default` trait to generate values, you can
+    /// [`MaybeUninit::write_filled`][slice::write_filled]. If you want to use the `Default` trait to generate values, you can
     /// pass [`|_| Default::default()`][Default::default] as the argument.
     ///
     /// # Panics
@@ -1353,7 +1353,7 @@ impl<T> [MaybeUninit<T>] {
     /// use std::mem::MaybeUninit;
     ///
     /// let mut uninit = [MaybeUninit::<u16>::uninit(), MaybeUninit::<u16>::uninit()];
-    /// let uninit_bytes = MaybeUninit::slice_as_bytes_mut(&mut uninit);
+    /// let uninit_bytes = uninit.as_bytes_mut();
     /// uninit_bytes.write_copy_of_slice(&[0x12, 0x34, 0x56, 0x78]);
     /// let vals = unsafe { uninit.assume_init_ref() };
     /// if cfg!(target_endian = "little") {
