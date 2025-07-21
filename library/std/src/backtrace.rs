@@ -113,7 +113,8 @@ pub struct Backtrace {
 /// whether it is empty for some other reason.
 #[stable(feature = "backtrace", since = "1.65.0")]
 #[non_exhaustive]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Eq)]
+#[derive_const(PartialEq)]
 pub enum BacktraceStatus {
     /// Capturing a backtrace is not supported, likely because it's not
     /// implemented for the current platform.

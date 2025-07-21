@@ -30,9 +30,9 @@ use crate::{fmt, intrinsics, ptr, ub_checks};
     reason = "implementation detail which may disappear or be replaced at any time",
     issue = "none"
 )]
-pub unsafe trait ZeroablePrimitive: Sized + Copy + private::Sealed {
+pub unsafe trait ZeroablePrimitive: Sized + const Destruct + Copy + private::Sealed {
     #[doc(hidden)]
-    type NonZeroInner: Sized + Copy;
+    type NonZeroInner: Sized + Copy + const Destruct;
 }
 
 macro_rules! impl_zeroable_primitive {
@@ -259,7 +259,7 @@ where
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
 impl<T> const Ord for NonZero<T>
 where
-    // FIXME(const_hack): the T: ~const Destruct should be inferred from the Self: ~const Destruct.
+    // FIXME(const_hack): the T: [const] Destruct should be inferred from the Self: [const] Destruct.
     // See https://github.com/rust-lang/rust/issues/144207
     T: ZeroablePrimitive + [const] Ord + [const] Destruct,
 {

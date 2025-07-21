@@ -966,9 +966,8 @@ impl<T: Clone> Clone for Reverse<T> {
 #[doc(alias = ">=")]
 #[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_diagnostic_item = "Ord"]
-#[const_trait]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub trait Ord: [const] Eq + [const] PartialOrd<Self> + PointeeSized {
+pub const trait Ord: [const] Eq + [const] PartialOrd<Self> + PointeeSized {
     /// This method returns an [`Ordering`] between `self` and `other`.
     ///
     /// By convention, `self.cmp(&other)` returns the ordering matching the expression
@@ -1352,9 +1351,10 @@ pub macro Ord($item:item) {
 )]
 #[rustc_diagnostic_item = "PartialOrd"]
 #[allow(multiple_supertrait_upcastable)] // FIXME(sized_hierarchy): remove this
-#[const_trait]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub trait PartialOrd<Rhs: PointeeSized = Self>: PartialEq<Rhs> + PointeeSized {
+pub const trait PartialOrd<Rhs: PointeeSized = Self>:
+    [const] PartialEq<Rhs> + PointeeSized
+{
     /// This method returns an ordering between `self` and `other` values if one exists.
     ///
     /// # Examples
@@ -1591,7 +1591,10 @@ pub const fn min<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
 #[must_use]
 #[stable(feature = "cmp_min_max_by", since = "1.53.0")]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub const fn min_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(
+pub const fn min_by<
+    T: [const] Destruct,
+    F: [const] FnOnce(&T, &T) -> Ordering + [const] Destruct,
+>(
     v1: T,
     v2: T,
     compare: F,
@@ -1621,12 +1624,15 @@ pub const fn min_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(
 #[must_use]
 #[stable(feature = "cmp_min_max_by", since = "1.53.0")]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub const fn min_by_key<T, F, K>(v1: T, v2: T, mut f: F) -> T
-where
+pub const fn min_by_key<
     T: [const] Destruct,
     F: [const] FnMut(&T) -> K + [const] Destruct,
     K: [const] Ord + [const] Destruct,
-{
+>(
+    v1: T,
+    v2: T,
+    mut f: F,
+) -> T {
     if f(&v2) < f(&v1) { v2 } else { v1 }
 }
 
@@ -1698,7 +1704,10 @@ pub const fn max<T: [const] Ord + [const] Destruct>(v1: T, v2: T) -> T {
 #[must_use]
 #[stable(feature = "cmp_min_max_by", since = "1.53.0")]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub const fn max_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(
+pub const fn max_by<
+    T: [const] Destruct,
+    F: [const] FnOnce(&T, &T) -> Ordering + [const] Destruct,
+>(
     v1: T,
     v2: T,
     compare: F,
@@ -1728,12 +1737,15 @@ pub const fn max_by<T: [const] Destruct, F: [const] FnOnce(&T, &T) -> Ordering>(
 #[must_use]
 #[stable(feature = "cmp_min_max_by", since = "1.53.0")]
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
-pub const fn max_by_key<T, F, K>(v1: T, v2: T, mut f: F) -> T
-where
+pub const fn max_by_key<
     T: [const] Destruct,
     F: [const] FnMut(&T) -> K + [const] Destruct,
     K: [const] Ord + [const] Destruct,
-{
+>(
+    v1: T,
+    v2: T,
+    mut f: F,
+) -> T {
     if f(&v2) < f(&v1) { v1 } else { v2 }
 }
 
@@ -1815,7 +1827,7 @@ where
 #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
 pub const fn minmax_by<T, F>(v1: T, v2: T, compare: F) -> [T; 2]
 where
-    F: [const] FnOnce(&T, &T) -> Ordering,
+    F: [const] FnOnce(&T, &T) -> Ordering + [const] Destruct,
 {
     if compare(&v1, &v2).is_le() { [v1, v2] } else { [v2, v1] }
 }

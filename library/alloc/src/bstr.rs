@@ -468,7 +468,8 @@ impl hash::Hash for ByteString {
 impl Eq for ByteString {}
 
 #[unstable(feature = "bstr", issue = "134915")]
-impl PartialEq for ByteString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq for ByteString {
     #[inline]
     fn eq(&self, other: &ByteString) -> bool {
         self.0 == other.0
@@ -479,7 +480,8 @@ macro_rules! impl_partial_eq_ord_cow {
     ($lhs:ty, $rhs:ty) => {
         #[allow(unused_lifetimes)]
         #[unstable(feature = "bstr", issue = "134915")]
-        impl<'a> PartialEq<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a> const PartialEq<$rhs> for $lhs {
             #[inline]
             fn eq(&self, other: &$rhs) -> bool {
                 let other: &[u8] = (&**other).as_ref();
@@ -489,7 +491,8 @@ macro_rules! impl_partial_eq_ord_cow {
 
         #[allow(unused_lifetimes)]
         #[unstable(feature = "bstr", issue = "134915")]
-        impl<'a> PartialEq<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a> const PartialEq<$lhs> for $rhs {
             #[inline]
             fn eq(&self, other: &$lhs) -> bool {
                 let this: &[u8] = (&**self).as_ref();
@@ -499,7 +502,8 @@ macro_rules! impl_partial_eq_ord_cow {
 
         #[allow(unused_lifetimes)]
         #[unstable(feature = "bstr", issue = "134915")]
-        impl<'a> PartialOrd<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a> const PartialOrd<$rhs> for $lhs {
             #[inline]
             fn partial_cmp(&self, other: &$rhs) -> Option<Ordering> {
                 let other: &[u8] = (&**other).as_ref();
@@ -509,7 +513,8 @@ macro_rules! impl_partial_eq_ord_cow {
 
         #[allow(unused_lifetimes)]
         #[unstable(feature = "bstr", issue = "134915")]
-        impl<'a> PartialOrd<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a> const PartialOrd<$lhs> for $rhs {
             #[inline]
             fn partial_cmp(&self, other: &$lhs) -> Option<Ordering> {
                 let this: &[u8] = (&**self).as_ref();
@@ -542,7 +547,8 @@ impl_partial_eq_ord_cow!(ByteString, Cow<'_, str>);
 impl_partial_eq_ord_cow!(ByteString, Cow<'_, [u8]>);
 
 #[unstable(feature = "bstr", issue = "134915")]
-impl Ord for ByteString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for ByteString {
     #[inline]
     fn cmp(&self, other: &ByteString) -> Ordering {
         Ord::cmp(&self.0, &other.0)
@@ -550,7 +556,8 @@ impl Ord for ByteString {
 }
 
 #[unstable(feature = "bstr", issue = "134915")]
-impl PartialOrd for ByteString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for ByteString {
     #[inline]
     fn partial_cmp(&self, other: &ByteString) -> Option<Ordering> {
         PartialOrd::partial_cmp(&self.0, &other.0)

@@ -3326,13 +3326,16 @@ unsafe impl<#[may_dangle] T: ?Sized, A: Allocator> Drop for Weak<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-trait ArcEqIdent<T: ?Sized + PartialEq, A: Allocator> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+#[const_trait]
+trait ArcEqIdent<T: ?Sized + [const] PartialEq, A: Allocator> {
     fn eq(&self, other: &Arc<T, A>) -> bool;
     fn ne(&self, other: &Arc<T, A>) -> bool;
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq, A: Allocator> ArcEqIdent<T, A> for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] PartialEq, A: Allocator> const ArcEqIdent<T, A> for Arc<T, A> {
     #[inline]
     default fn eq(&self, other: &Arc<T, A>) -> bool {
         **self == **other
@@ -3351,7 +3354,10 @@ impl<T: ?Sized + PartialEq, A: Allocator> ArcEqIdent<T, A> for Arc<T, A> {
 ///
 /// We can only do this when `T: Eq` as a `PartialEq` might be deliberately irreflexive.
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + crate::rc::MarkerEq, A: Allocator> ArcEqIdent<T, A> for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + crate::rc::MarkerEq + [const] PartialEq, A: Allocator> const ArcEqIdent<T, A>
+    for Arc<T, A>
+{
     #[inline]
     fn eq(&self, other: &Arc<T, A>) -> bool {
         Arc::ptr_eq(self, other) || **self == **other
@@ -3364,7 +3370,8 @@ impl<T: ?Sized + crate::rc::MarkerEq, A: Allocator> ArcEqIdent<T, A> for Arc<T, 
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] PartialEq, A: Allocator> const PartialEq for Arc<T, A> {
     /// Equality for two `Arc`s.
     ///
     /// Two `Arc`s are equal if their inner values are equal, even if they are
@@ -3410,7 +3417,8 @@ impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Arc<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] PartialOrd, A: Allocator> const PartialOrd for Arc<T, A> {
     /// Partial comparison for two `Arc`s.
     ///
     /// The two are compared by calling `partial_cmp()` on their inner values.
@@ -3498,7 +3506,8 @@ impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Arc<T, A> {
     }
 }
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + Ord, A: Allocator> Ord for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] Ord, A: Allocator> const Ord for Arc<T, A> {
     /// Comparison for two `Arc`s.
     ///
     /// The two are compared by calling `cmp()` on their inner values.
@@ -4246,7 +4255,8 @@ impl<T: ?Sized, A: Allocator> AsMut<T> for UniqueArc<T, A> {
 impl<T: ?Sized, A: Allocator> Unpin for UniqueArc<T, A> {}
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] PartialEq, A: Allocator> const PartialEq for UniqueArc<T, A> {
     /// Equality for two `UniqueArc`s.
     ///
     /// Two `UniqueArc`s are equal if their inner values are equal.
@@ -4268,7 +4278,8 @@ impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for UniqueArc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] PartialOrd, A: Allocator> const PartialOrd for UniqueArc<T, A> {
     /// Partial comparison for two `UniqueArc`s.
     ///
     /// The two are compared by calling `partial_cmp()` on their inner values.
@@ -4367,7 +4378,8 @@ impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for UniqueArc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + Ord, A: Allocator> Ord for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + [const] Ord, A: Allocator> const Ord for UniqueArc<T, A> {
     /// Comparison for two `UniqueArc`s.
     ///
     /// The two are compared by calling `cmp()` on their inner values.

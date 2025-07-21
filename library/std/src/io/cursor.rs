@@ -71,7 +71,8 @@ use crate::io::{self, BorrowedCursor, ErrorKind, IoSlice, IoSliceMut, SeekFrom};
 /// }
 /// ```
 #[stable(feature = "rust1", since = "1.0.0")]
-#[derive(Debug, Default, Eq, PartialEq)]
+#[derive(Debug, Default, Eq)]
+#[derive_const(PartialEq)]
 pub struct Cursor<T> {
     inner: T,
     pos: u64,

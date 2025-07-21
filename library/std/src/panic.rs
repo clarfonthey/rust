@@ -429,7 +429,8 @@ pub fn always_abort() {
 
 /// The configuration for whether and how the default panic hook will capture
 /// and display the backtrace.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Eq)]
+#[derive_const(PartialEq)]
 #[unstable(feature = "panic_backtrace_config", issue = "93346")]
 #[non_exhaustive]
 pub enum BacktraceStyle {

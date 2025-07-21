@@ -209,7 +209,8 @@ macro_rules! thread_local {
 /// An error returned by [`LocalKey::try_with`](struct.LocalKey.html#method.try_with).
 #[stable(feature = "thread_local_try_with", since = "1.26.0")]
 #[non_exhaustive]
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq)]
+#[derive_const(PartialEq)]
 pub struct AccessError;
 
 #[stable(feature = "thread_local_try_with", since = "1.26.0")]

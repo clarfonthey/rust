@@ -403,7 +403,8 @@ unsafe impl<T: Send> Send for SyncSender<T> {}
 /// disconnected, implying that the data could never be received. The error
 /// contains the data being sent as a payload so it can be recovered.
 #[stable(feature = "rust1", since = "1.0.0")]
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Eq, Clone, Copy)]
+#[derive_const(PartialEq)]
 pub struct SendError<T>(#[stable(feature = "rust1", since = "1.0.0")] pub T);
 
 /// An error returned from the [`recv`] function on a [`Receiver`].
@@ -413,7 +414,8 @@ pub struct SendError<T>(#[stable(feature = "rust1", since = "1.0.0")] pub T);
 /// messages will ever be received.
 ///
 /// [`recv`]: Receiver::recv
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Eq, Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct RecvError;
 
@@ -422,7 +424,8 @@ pub struct RecvError;
 /// a [`sync_channel`].
 ///
 /// [`try_recv`]: Receiver::try_recv
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Eq, Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub enum TryRecvError {
     /// This **channel** is currently empty, but the **Sender**(s) have not yet
@@ -441,7 +444,8 @@ pub enum TryRecvError {
 /// a [`sync_channel`].
 ///
 /// [`recv_timeout`]: Receiver::recv_timeout
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Eq, Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "mpsc_recv_timeout", since = "1.12.0")]
 pub enum RecvTimeoutError {
     /// This **channel** is currently empty, but the **Sender**(s) have not yet
@@ -459,7 +463,8 @@ pub enum RecvTimeoutError {
 ///
 /// [`try_send`]: SyncSender::try_send
 #[stable(feature = "rust1", since = "1.0.0")]
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Eq, Clone, Copy)]
+#[derive_const(PartialEq)]
 pub enum TrySendError<T> {
     /// The data could not be sent on the [`sync_channel`] because it would require that
     /// the callee block to send the data.

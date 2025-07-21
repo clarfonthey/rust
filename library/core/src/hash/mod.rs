@@ -790,7 +790,8 @@ impl<H> Default for BuildHasherDefault<H> {
 }
 
 #[stable(since = "1.29.0", feature = "build_hasher_eq")]
-impl<H> PartialEq for BuildHasherDefault<H> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<H> const PartialEq for BuildHasherDefault<H> {
     fn eq(&self, _other: &BuildHasherDefault<H>) -> bool {
         true
     }

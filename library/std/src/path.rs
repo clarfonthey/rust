@@ -132,7 +132,8 @@ use crate::{cmp, fmt, fs, io, sys};
 /// assert_eq!(Disk(b'C'), get_path_prefix(r"C:\Users\Rust\Pictures\Ferris"));
 /// # }
 /// ```
-#[derive(Copy, Clone, Debug, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Hash, Eq)]
+#[derive_const(PartialEq, PartialOrd, Ord)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub enum Prefix<'a> {
     /// Verbatim prefix, e.g., `\\?\cat_pics`.
@@ -372,7 +373,8 @@ fn validate_extension(extension: &OsStr) {
 ///
 /// Going front to back, a path is made up of a prefix, a starting
 /// directory component, and a body (of normal components)
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[derive(Copy, Clone, Debug)]
+#[derive_const(PartialEq, PartialOrd)]
 enum State {
     Prefix = 0,   // c:
     StartDir = 1, // / or . or nothing
@@ -445,7 +447,8 @@ impl<'a> PrefixComponent<'a> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> PartialEq for PrefixComponent<'a> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a> const PartialEq for PrefixComponent<'a> {
     #[inline]
     fn eq(&self, other: &PrefixComponent<'a>) -> bool {
         self.parsed == other.parsed
@@ -453,7 +456,8 @@ impl<'a> PartialEq for PrefixComponent<'a> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> PartialOrd for PrefixComponent<'a> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a> const PartialOrd for PrefixComponent<'a> {
     #[inline]
     fn partial_cmp(&self, other: &PrefixComponent<'a>) -> Option<cmp::Ordering> {
         PartialOrd::partial_cmp(&self.parsed, &other.parsed)
@@ -461,7 +465,8 @@ impl<'a> PartialOrd for PrefixComponent<'a> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for PrefixComponent<'_> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for PrefixComponent<'_> {
     #[inline]
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         Ord::cmp(&self.parsed, &other.parsed)
@@ -497,7 +502,8 @@ impl Hash for PrefixComponent<'_> {
 ///     Component::Normal("bar.txt".as_ref()),
 /// ]);
 /// ```
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+#[derive(Copy, Clone, Eq, Hash, Debug)]
+#[derive_const(PartialEq, PartialOrd, Ord)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub enum Component<'a> {
     /// A Windows path prefix, e.g., `C:` or `\\server\share`.
@@ -986,7 +992,8 @@ impl<'a> DoubleEndedIterator for Components<'a> {
 impl FusedIterator for Components<'_> {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> PartialEq for Components<'a> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a> const PartialEq for Components<'a> {
     #[inline]
     fn eq(&self, other: &Components<'a>) -> bool {
         let Components { path: _, front: _, back: _, has_physical_root: _, prefix: _ } = self;
@@ -1016,7 +1023,8 @@ impl<'a> PartialEq for Components<'a> {
 impl Eq for Components<'_> {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> PartialOrd for Components<'a> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a> const PartialOrd for Components<'a> {
     #[inline]
     fn partial_cmp(&self, other: &Components<'a>) -> Option<cmp::Ordering> {
         Some(compare_components(self.clone(), other.clone()))
@@ -1024,7 +1032,8 @@ impl<'a> PartialOrd for Components<'a> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for Components<'_> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for Components<'_> {
     #[inline]
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         compare_components(self.clone(), other.clone())
@@ -2096,7 +2105,8 @@ impl ToOwned for Path {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq for PathBuf {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq for PathBuf {
     #[inline]
     fn eq(&self, other: &PathBuf) -> bool {
         self.components() == other.components()
@@ -2146,7 +2156,8 @@ impl Hash for PathBuf {
 impl Eq for PathBuf {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for PathBuf {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for PathBuf {
     #[inline]
     fn partial_cmp(&self, other: &PathBuf) -> Option<cmp::Ordering> {
         Some(compare_components(self.components(), other.components()))
@@ -2154,7 +2165,8 @@ impl PartialOrd for PathBuf {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for PathBuf {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for PathBuf {
     #[inline]
     fn cmp(&self, other: &PathBuf) -> cmp::Ordering {
         compare_components(self.components(), other.components())
@@ -2217,14 +2229,16 @@ pub struct Path {
 /// See its documentation for more.
 ///
 /// [`strip_prefix`]: Path::strip_prefix
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
+#[derive_const(PartialEq)]
 #[stable(since = "1.7.0", feature = "strip_prefix")]
 pub struct StripPrefixError(());
 
 /// An error returned from [`Path::normalize_lexically`] if a `..` parent reference
 /// would escape the path.
 #[unstable(feature = "normalize_lexically", issue = "134694")]
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
+#[derive_const(PartialEq)]
 #[non_exhaustive]
 pub struct NormalizeError;
 
@@ -3398,7 +3412,8 @@ impl fmt::Display for Display<'_> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq for Path {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq for Path {
     #[inline]
     fn eq(&self, other: &Path) -> bool {
         self.components() == other.components()
@@ -3498,7 +3513,8 @@ impl Hash for Path {
 impl Eq for Path {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for Path {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for Path {
     #[inline]
     fn partial_cmp(&self, other: &Path) -> Option<cmp::Ordering> {
         Some(compare_components(self.components(), other.components()))
@@ -3506,7 +3522,8 @@ impl PartialOrd for Path {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for Path {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for Path {
     #[inline]
     fn cmp(&self, other: &Path) -> cmp::Ordering {
         compare_components(self.components(), other.components())
@@ -3594,7 +3611,8 @@ impl<'a> IntoIterator for &'a Path {
 macro_rules! impl_cmp {
     (<$($life:lifetime),*> $lhs:ty, $rhs: ty) => {
         #[stable(feature = "partialeq_path", since = "1.6.0")]
-        impl<$($life),*> PartialEq<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialEq<$rhs> for $lhs {
             #[inline]
             fn eq(&self, other: &$rhs) -> bool {
                 <Path as PartialEq>::eq(self, other)
@@ -3602,7 +3620,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "partialeq_path", since = "1.6.0")]
-        impl<$($life),*> PartialEq<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialEq<$lhs> for $rhs {
             #[inline]
             fn eq(&self, other: &$lhs) -> bool {
                 <Path as PartialEq>::eq(self, other)
@@ -3610,7 +3629,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialOrd<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialOrd<$rhs> for $lhs {
             #[inline]
             fn partial_cmp(&self, other: &$rhs) -> Option<cmp::Ordering> {
                 <Path as PartialOrd>::partial_cmp(self, other)
@@ -3618,7 +3638,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialOrd<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialOrd<$lhs> for $rhs {
             #[inline]
             fn partial_cmp(&self, other: &$lhs) -> Option<cmp::Ordering> {
                 <Path as PartialOrd>::partial_cmp(self, other)
@@ -3636,7 +3657,8 @@ impl_cmp!(<'a> Cow<'a, Path>, PathBuf);
 macro_rules! impl_cmp_os_str {
     (<$($life:lifetime),*> $lhs:ty, $rhs: ty) => {
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialEq<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialEq<$rhs> for $lhs {
             #[inline]
             fn eq(&self, other: &$rhs) -> bool {
                 <Path as PartialEq>::eq(self, other.as_ref())
@@ -3644,7 +3666,8 @@ macro_rules! impl_cmp_os_str {
         }
 
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialEq<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialEq<$lhs> for $rhs {
             #[inline]
             fn eq(&self, other: &$lhs) -> bool {
                 <Path as PartialEq>::eq(self.as_ref(), other)
@@ -3652,7 +3675,8 @@ macro_rules! impl_cmp_os_str {
         }
 
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialOrd<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialOrd<$rhs> for $lhs {
             #[inline]
             fn partial_cmp(&self, other: &$rhs) -> Option<cmp::Ordering> {
                 <Path as PartialOrd>::partial_cmp(self, other.as_ref())
@@ -3660,7 +3684,8 @@ macro_rules! impl_cmp_os_str {
         }
 
         #[stable(feature = "cmp_path", since = "1.8.0")]
-        impl<$($life),*> PartialOrd<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<$($life),*> const PartialOrd<$lhs> for $rhs {
             #[inline]
             fn partial_cmp(&self, other: &$lhs) -> Option<cmp::Ordering> {
                 <Path as PartialOrd>::partial_cmp(self.as_ref(), other)

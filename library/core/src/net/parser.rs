@@ -457,7 +457,8 @@ impl FromStr for SocketAddr {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
+#[derive_const(PartialEq)]
 enum AddrKind {
     Ip,
     Ipv4,
@@ -492,7 +493,8 @@ enum AddrKind {
 /// let _foo: SocketAddr = "127.0.0.1:8080".parse().expect("unreachable panic");
 /// ```
 #[stable(feature = "rust1", since = "1.0.0")]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
+#[derive_const(PartialEq)]
 pub struct AddrParseError(AddrKind);
 
 #[stable(feature = "addr_parse_error_error", since = "1.4.0")]

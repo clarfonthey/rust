@@ -60,7 +60,8 @@ macro_rules! phantom_type {
 
         impl<T> Copy for $name<T> where T: ?Sized {}
 
-        impl<T> PartialEq for $name<T>
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<T> const PartialEq for $name<T>
             where T: ?Sized
         {
             fn eq(&self, _: &Self) -> bool {
@@ -70,7 +71,8 @@ macro_rules! phantom_type {
 
         impl<T> Eq for $name<T> where T: ?Sized {}
 
-        impl<T> PartialOrd for $name<T>
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<T> const PartialOrd for $name<T>
             where T: ?Sized
         {
             fn partial_cmp(&self, _: &Self) -> Option<Ordering> {
@@ -78,7 +80,8 @@ macro_rules! phantom_type {
             }
         }
 
-        impl<T> Ord for $name<T>
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<T> const Ord for $name<T>
             where T: ?Sized
         {
             fn cmp(&self, _: &Self) -> Ordering {

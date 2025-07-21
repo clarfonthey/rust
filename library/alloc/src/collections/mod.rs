@@ -64,7 +64,8 @@ pub use vec_deque::VecDeque;
 use crate::alloc::{Layout, LayoutError};
 
 /// The error type for `try_reserve` methods.
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "try_reserve", since = "1.57.0")]
 #[cfg(not(test))]
 pub struct TryReserveError {
@@ -90,13 +91,14 @@ impl TryReserveError {
 }
 
 /// Details of the allocation that caused a `TryReserveError`
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
 #[unstable(
     feature = "try_reserve_kind",
     reason = "Uncertain how much info should be exposed",
     issue = "48043"
 )]
 #[cfg(not(test))]
+#[derive_const(PartialEq)]
 pub enum TryReserveErrorKind {
     /// Error due to the computed capacity exceeding the collection's maximum
     /// (usually `isize::MAX` bytes).

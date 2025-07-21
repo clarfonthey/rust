@@ -268,7 +268,8 @@ fn _var_os(key: &OsStr) -> Option<OsString> {
 /// Possibly returned from [`env::var()`].
 ///
 /// [`env::var()`]: var
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Eq, Clone)]
+#[derive_const(PartialEq)]
 #[stable(feature = "env", since = "1.0.0")]
 pub enum VarError {
     /// The specified environment variable was not present in the current
