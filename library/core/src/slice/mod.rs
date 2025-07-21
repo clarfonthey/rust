@@ -7,7 +7,8 @@
 #![stable(feature = "rust1", since = "1.0.0")]
 
 use crate::cmp::Ordering::{self, Equal, Greater, Less};
-use crate::intrinsics::{exact_div, unchecked_sub};
+use crate::intrinsics::{const_eval_select, exact_div, unchecked_sub};
+use crate::marker::Destruct;
 use crate::mem::{self, MaybeUninit, SizedTypeProperties};
 use crate::num::NonZero;
 use crate::ops::{OneSidedRange, OneSidedRangeBound, Range, RangeBounds, RangeInclusive};
@@ -2656,9 +2657,10 @@ impl<T> [T] {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[inline]
     #[must_use]
-    pub fn contains(&self, x: &T) -> bool
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn contains(&self, x: &T) -> bool
     where
-        T: PartialEq,
+        T: ~const PartialEq,
     {
         cmp::SliceContains::slice_contains(x, self)
     }
@@ -2686,9 +2688,10 @@ impl<T> [T] {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
-    pub fn starts_with(&self, needle: &[T]) -> bool
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn starts_with(&self, needle: &[T]) -> bool
     where
-        T: PartialEq,
+        T: ~const PartialEq,
     {
         let n = needle.len();
         self.len() >= n && needle == &self[..n]
@@ -2717,9 +2720,10 @@ impl<T> [T] {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
-    pub fn ends_with(&self, needle: &[T]) -> bool
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn ends_with(&self, needle: &[T]) -> bool
     where
-        T: PartialEq,
+        T: ~const PartialEq,
     {
         let (m, n) = (self.len(), needle.len());
         m >= n && needle == &self[m - n..]
@@ -3005,9 +3009,10 @@ impl<T> [T] {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     #[inline]
-    pub fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<usize, usize>
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<usize, usize>
     where
-        F: FnMut(&'a T) -> Ordering,
+        F: ~const FnMut(&'a T) -> Ordering + ~const Destruct,
     {
         let mut size = self.len();
         if size == 0 {
@@ -3028,10 +3033,20 @@ impl<T> [T] {
             // - `mid < size`: `mid = size / 2 + size / 4 + size / 8 ...`
             let cmp = f(unsafe { self.get_unchecked(mid) });
 
+            // FIXME: const_precise_live_drops are required to make select_unpredictable const,
+            //   but since this is just for usize, provide a suitable replacement
+            const fn select_predictable(cond: bool, true_val: usize, false_val: usize) -> usize {
+                if cond { true_val } else { false_val }
+            }
+
             // Binary search interacts poorly with branch prediction, so force
             // the compiler to use conditional moves if supported by the target
             // architecture.
-            base = hint::select_unpredictable(cmp == Greater, base, mid);
+            base = const_eval_select(
+                (cmp == Greater, base, mid),
+                select_predictable,
+                hint::select_unpredictable,
+            );
 
             // This is imprecise in the case where `size` is odd and the
             // comparison returns Greater: the mid element still gets included
@@ -3538,9 +3553,10 @@ impl<T> [T] {
     /// ```
     #[unstable(feature = "slice_partition_dedup", issue = "54279")]
     #[inline]
-    pub fn partition_dedup_by<F>(&mut self, mut same_bucket: F) -> (&mut [T], &mut [T])
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn partition_dedup_by<F>(&mut self, mut same_bucket: F) -> (&mut [T], &mut [T])
     where
-        F: FnMut(&mut T, &mut T) -> bool,
+        F: ~const FnMut(&mut T, &mut T) -> bool + ~const Destruct,
     {
         // Although we have a mutable reference to `self`, we cannot make
         // *arbitrary* changes. The `same_bucket` calls could panic, so we
@@ -4359,27 +4375,46 @@ impl<T> [T] {
     #[inline]
     #[stable(feature = "is_sorted", since = "1.82.0")]
     #[must_use]
-    pub fn is_sorted(&self) -> bool
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn is_sorted(&self) -> bool
     where
-        T: PartialOrd,
+        T: ~const PartialOrd,
     {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        const fn chunk_is_sorted_branching<T: ~const PartialOrd>(x: &[T]) -> bool {
+            let mut idx = 1;
+            while idx < x.len() {
+                if x[idx - 1] > x[idx] {
+                    return false;
+                }
+                idx += 1;
+            }
+            true
+        }
+
         // This odd number works the best. 32 + 1 extra due to overlapping chunk boundaries.
         const CHUNK_SIZE: usize = 33;
         if self.len() < CHUNK_SIZE {
-            return self.windows(2).all(|w| w[0] <= w[1]);
+            return chunk_is_sorted_branching(self);
         }
         let mut i = 0;
         // Check in chunks for autovectorization.
         while i < self.len() - CHUNK_SIZE {
             let chunk = &self[i..i + CHUNK_SIZE];
-            if !chunk.windows(2).fold(true, |acc, w| acc & (w[0] <= w[1])) {
+            let mut acc = true;
+            let mut j = 1;
+            while j < CHUNK_SIZE {
+                acc |= chunk[j - 1] <= chunk[j];
+                j += 1;
+            }
+            if !acc {
                 return false;
             }
             // We need to ensure that chunk boundaries are also sorted.
             // Overlap the next chunk with the last element of our last chunk.
             i += CHUNK_SIZE - 1;
         }
-        self[i..].windows(2).all(|w| w[0] <= w[1])
+        chunk_is_sorted_branching(&self[i..])
     }
 
     /// Checks if the elements of this slice are sorted using the given comparator function.

@@ -88,7 +88,8 @@ use crate::{fmt, ops, slice, str};
 /// ```
 ///
 /// [str]: prim@str "str"
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Eq, Hash)]
+#[derive_const(PartialEq)]
 #[stable(feature = "core_c_str", since = "1.64.0")]
 #[rustc_diagnostic_item = "cstr_type"]
 #[rustc_has_incoherent_inherent_impls]
@@ -122,7 +123,8 @@ pub struct CStr {
 ///
 /// let _: FromBytesWithNulError = CStr::from_bytes_with_nul(b"f\0oo").unwrap_err();
 /// ```
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "core_c_str", since = "1.64.0")]
 pub enum FromBytesWithNulError {
     /// Data provided contains an interior nul byte at byte `position`.
@@ -155,7 +157,8 @@ impl Error for FromBytesWithNulError {}
 /// within the slice.
 ///
 /// This error is created by the [`CStr::from_bytes_until_nul`] method.
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "cstr_from_bytes_until_nul", since = "1.69.0")]
 pub struct FromBytesUntilNulError(());
 
@@ -653,7 +656,8 @@ impl CStr {
 }
 
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<&Self> for CStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<&Self> for CStr {
     #[inline]
     fn eq(&self, other: &&Self) -> bool {
         *self == **other
@@ -669,7 +673,8 @@ impl PartialEq<&Self> for CStr {
 // because `c_char` is `i8` (not `u8`) on some platforms.
 // That is why this is implemented manually and not derived.
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for CStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for CStr {
     #[inline]
     fn partial_cmp(&self, other: &CStr) -> Option<Ordering> {
         self.to_bytes().partial_cmp(&other.to_bytes())
@@ -677,7 +682,8 @@ impl PartialOrd for CStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for CStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for CStr {
     #[inline]
     fn cmp(&self, other: &CStr) -> Ordering {
         self.to_bytes().cmp(&other.to_bytes())

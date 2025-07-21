@@ -343,7 +343,8 @@ impl<T: ~const Default> const Default for Cell<T> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: PartialEq + Copy> PartialEq for Cell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialEq + Copy> const PartialEq for Cell<T> {
     #[inline]
     fn eq(&self, other: &Cell<T>) -> bool {
         self.get() == other.get()
@@ -354,7 +355,8 @@ impl<T: PartialEq + Copy> PartialEq for Cell<T> {
 impl<T: Eq + Copy> Eq for Cell<T> {}
 
 #[stable(feature = "cell_ord", since = "1.10.0")]
-impl<T: PartialOrd + Copy> PartialOrd for Cell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialOrd + Copy> const PartialOrd for Cell<T> {
     #[inline]
     fn partial_cmp(&self, other: &Cell<T>) -> Option<Ordering> {
         self.get().partial_cmp(&other.get())
@@ -1335,7 +1337,8 @@ impl<T: ~const Default> const Default for RefCell<T> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq> PartialEq for RefCell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialEq> const PartialEq for RefCell<T> {
     /// # Panics
     ///
     /// Panics if the value in either `RefCell` is currently mutably borrowed.
@@ -1349,7 +1352,8 @@ impl<T: ?Sized + PartialEq> PartialEq for RefCell<T> {
 impl<T: ?Sized + Eq> Eq for RefCell<T> {}
 
 #[stable(feature = "cell_ord", since = "1.10.0")]
-impl<T: ?Sized + PartialOrd> PartialOrd for RefCell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialOrd> const PartialOrd for RefCell<T> {
     /// # Panics
     ///
     /// Panics if the value in either `RefCell` is currently mutably borrowed.
@@ -1392,7 +1396,8 @@ impl<T: ?Sized + PartialOrd> PartialOrd for RefCell<T> {
 }
 
 #[stable(feature = "cell_ord", since = "1.10.0")]
-impl<T: ?Sized + Ord> Ord for RefCell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const Ord> const Ord for RefCell<T> {
     /// # Panics
     ///
     /// Panics if the value in either `RefCell` is currently mutably borrowed.

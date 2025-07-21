@@ -9,7 +9,8 @@ use crate::time::{Duration, Instant};
 /// It is returned by the [`wait_timeout`] method.
 ///
 /// [`wait_timeout`]: Condvar::wait_timeout
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, Eq, Copy, Clone)]
+#[derive_const(PartialEq)]
 #[stable(feature = "wait_timeout", since = "1.5.0")]
 pub struct WaitTimeoutResult(bool);
 

@@ -191,12 +191,14 @@ impl const From<u8> for char {
 ///
 /// This `struct` is created when using the [`char::from_str`] method.
 #[stable(feature = "char_from_str", since = "1.20.0")]
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Eq)]
+#[derive_const(PartialEq)]
 pub struct ParseCharError {
     kind: CharErrorKind,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Eq)]
+#[derive_const(PartialEq)]
 enum CharErrorKind {
     EmptyString,
     TooManyChars,
@@ -276,7 +278,8 @@ impl const TryFrom<u32> for char {
 /// This `struct` is created by the [`char::try_from<u32>`](char#impl-TryFrom<u32>-for-char) method.
 /// See its documentation for more.
 #[stable(feature = "try_from", since = "1.34.0")]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Eq)]
+#[derive_const(PartialEq)]
 pub struct CharTryFromError(());
 
 #[stable(feature = "try_from", since = "1.34.0")]

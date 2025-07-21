@@ -23,7 +23,8 @@ macro_rules! tuple_impls {
         maybe_tuple_doc! {
             $($T)+ @
             #[stable(feature = "rust1", since = "1.0.0")]
-            impl<$($T: PartialEq),+> PartialEq for ($($T,)+) {
+            #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+            impl<$($T: ~const PartialEq),+> const PartialEq for ($($T,)+) {
                 #[inline]
                 fn eq(&self, other: &($($T,)+)) -> bool {
                     $( ${ignore($T)} self.${index()} == other.${index()} )&&+
@@ -66,7 +67,8 @@ macro_rules! tuple_impls {
         maybe_tuple_doc! {
             $($T)+ @
             #[stable(feature = "rust1", since = "1.0.0")]
-            impl<$($T: PartialOrd),+> PartialOrd for ($($T,)+)
+            #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+            impl<$($T: ~const PartialOrd),+> const PartialOrd for ($($T,)+)
             {
                 #[inline]
                 fn partial_cmp(&self, other: &($($T,)+)) -> Option<Ordering> {
@@ -110,7 +112,8 @@ macro_rules! tuple_impls {
         maybe_tuple_doc! {
             $($T)+ @
             #[stable(feature = "rust1", since = "1.0.0")]
-            impl<$($T: Ord),+> Ord for ($($T,)+)
+            #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+            impl<$($T: ~const Ord),+> const Ord for ($($T,)+)
             {
                 #[inline]
                 fn cmp(&self, other: &($($T,)+)) -> Ordering {

@@ -2183,7 +2183,8 @@ pub(crate) fn stream_len_default<T: Seek + ?Sized>(self_: &mut T) -> Result<u64>
 /// Enumeration of possible methods to seek within an I/O object.
 ///
 /// It is used by the [`Seek`] trait.
-#[derive(Copy, PartialEq, Eq, Clone, Debug)]
+#[derive(Copy, Eq, Clone, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 #[cfg_attr(not(test), rustc_diagnostic_item = "SeekFrom")]
 pub enum SeekFrom {

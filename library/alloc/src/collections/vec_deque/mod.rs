@@ -10,6 +10,7 @@
 use core::cmp::{self, Ordering};
 use core::hash::{Hash, Hasher};
 use core::iter::{ByRefSized, repeat_n, repeat_with};
+use core::marker::Destruct;
 // This is used in a bunch of intra-doc links.
 // FIXME: For some reason, `#[cfg(doc)]` wasn't sufficient, resulting in
 // failures in linkchecker even though rustdoc built the docs just fine.
@@ -158,7 +159,8 @@ impl<T> Default for VecDeque<T> {
 impl<T, A: Allocator> VecDeque<T, A> {
     /// Marginally more convenient
     #[inline]
-    fn ptr(&self) -> *mut T {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn ptr(&self) -> *mut T {
         self.buf.ptr()
     }
 
@@ -193,7 +195,8 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// Returns a slice pointer into the buffer.
     /// `range` must lie inside `0..self.capacity()`.
     #[inline]
-    unsafe fn buffer_range(&self, range: Range<usize>) -> *mut [T] {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const unsafe fn buffer_range(&self, range: Range<usize>) -> *mut [T] {
         unsafe {
             ptr::slice_from_raw_parts_mut(self.ptr().add(range.start), range.end - range.start)
         }
@@ -208,12 +211,14 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// Returns the index in the underlying buffer for a given logical element
     /// index + addend.
     #[inline]
-    fn wrap_add(&self, idx: usize, addend: usize) -> usize {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn wrap_add(&self, idx: usize, addend: usize) -> usize {
         wrap_index(idx.wrapping_add(addend), self.capacity())
     }
 
     #[inline]
-    fn to_physical_idx(&self, idx: usize) -> usize {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn to_physical_idx(&self, idx: usize) -> usize {
         self.wrap_add(self.head, idx)
     }
 
@@ -767,7 +772,8 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ```
     #[inline]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn capacity(&self) -> usize {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn capacity(&self) -> usize {
         if T::IS_ZST { usize::MAX } else { self.buf.capacity() }
     }
 
@@ -1343,7 +1349,8 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ```
     #[inline]
     #[stable(feature = "deque_extras_15", since = "1.5.0")]
-    pub fn as_slices(&self) -> (&[T], &[T]) {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn as_slices(&self) -> (&[T], &[T]) {
         let (a_range, b_range) = self.slice_ranges(.., self.len);
         // SAFETY: `slice_ranges` always returns valid ranges into
         // the physical buffer.
@@ -1413,7 +1420,8 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     #[rustc_confusables("length", "size")]
-    pub fn len(&self) -> usize {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn len(&self) -> usize {
         self.len
     }
 
@@ -1446,9 +1454,10 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ranges into the physical buffer, the caller must ensure that the result of
     /// calling `slice::range(range, ..len)` represents a valid range into the
     /// logical buffer, and that all elements in that range are initialized.
-    fn slice_ranges<R>(&self, range: R, len: usize) -> (Range<usize>, Range<usize>)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn slice_ranges<R>(&self, range: R, len: usize) -> (Range<usize>, Range<usize>)
     where
-        R: RangeBounds<usize>,
+        R: ~const RangeBounds<usize> + ~const Destruct,
     {
         let Range { start, end } = slice::range(range, ..len);
         let len = end - start;
@@ -1671,9 +1680,10 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// assert_eq!(deque.contains(&10), false);
     /// ```
     #[stable(feature = "vec_deque_contains", since = "1.12.0")]
-    pub fn contains(&self, x: &T) -> bool
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn contains(&self, x: &T) -> bool
     where
-        T: PartialEq<T>,
+        T: ~const PartialEq<T>,
     {
         let (a, b) = self.as_slices();
         a.contains(x) || b.contains(x)
@@ -2920,7 +2930,8 @@ impl<T: Clone, A: Allocator> VecDeque<T, A> {
 
 /// Returns the index in the underlying buffer for a given logical element index.
 #[inline]
-fn wrap_index(logical_index: usize, capacity: usize) -> usize {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+const fn wrap_index(logical_index: usize, capacity: usize) -> usize {
     debug_assert!(
         (logical_index == 0 && capacity == 0)
             || logical_index < capacity
@@ -2930,7 +2941,8 @@ fn wrap_index(logical_index: usize, capacity: usize) -> usize {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: PartialEq, A: Allocator> PartialEq for VecDeque<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialEq, A: Allocator> const PartialEq for VecDeque<T, A> {
     fn eq(&self, other: &Self) -> bool {
         if self.len != other.len() {
             return false;
@@ -2950,9 +2962,9 @@ impl<T: PartialEq, A: Allocator> PartialEq for VecDeque<T, A> {
 
             let (oa_front, oa_mid) = oa.split_at(front);
             let (sb_mid, sb_back) = sb.split_at(mid);
-            debug_assert_eq!(sa.len(), oa_front.len());
-            debug_assert_eq!(sb_mid.len(), oa_mid.len());
-            debug_assert_eq!(sb_back.len(), ob.len());
+            debug_assert!(sa.len() == oa_front.len());
+            debug_assert!(sb_mid.len() == oa_mid.len());
+            debug_assert!(sb_back.len() == ob.len());
             sa == oa_front && sb_mid == oa_mid && sb_back == ob
         } else {
             let front = oa.len();
@@ -2960,9 +2972,9 @@ impl<T: PartialEq, A: Allocator> PartialEq for VecDeque<T, A> {
 
             let (sa_front, sa_mid) = sa.split_at(front);
             let (ob_mid, ob_back) = ob.split_at(mid);
-            debug_assert_eq!(sa_front.len(), oa.len());
-            debug_assert_eq!(sa_mid.len(), ob_mid.len());
-            debug_assert_eq!(sb.len(), ob_back.len());
+            debug_assert!(sa_front.len() == oa.len());
+            debug_assert!(sa_mid.len() == ob_mid.len());
+            debug_assert!(sb.len() == ob_back.len());
             sa_front == oa && sa_mid == ob_mid && sb == ob_back
         }
     }
@@ -2979,14 +2991,16 @@ __impl_slice_eq1! { [const N: usize] VecDeque<T, A>, &[U; N], }
 __impl_slice_eq1! { [const N: usize] VecDeque<T, A>, &mut [U; N], }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: PartialOrd, A: Allocator> PartialOrd for VecDeque<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialOrd, A: Allocator> const PartialOrd for VecDeque<T, A> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.iter().partial_cmp(other.iter())
     }
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: Ord, A: Allocator> Ord for VecDeque<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const Ord, A: Allocator> const Ord for VecDeque<T, A> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         self.iter().cmp(other.iter())

@@ -1,6 +1,7 @@
 //! Indexing implementations for `[T]`.
 
 use crate::intrinsics::slice_get_unchecked;
+use crate::marker::Destruct;
 use crate::panic::const_panic;
 use crate::ub_checks::assert_unsafe_precondition;
 use crate::{ops, range};
@@ -846,24 +847,31 @@ unsafe impl<T> const SliceIndex<[T]> for ops::RangeToInclusive<usize> {
 #[track_caller]
 #[unstable(feature = "slice_range", issue = "76393")]
 #[must_use]
-pub fn range<R>(range: R, bounds: ops::RangeTo<usize>) -> ops::Range<usize>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+pub const fn range<R>(range: R, bounds: ops::RangeTo<usize>) -> ops::Range<usize>
 where
-    R: ops::RangeBounds<usize>,
+    R: ~const ops::RangeBounds<usize> + ~const Destruct,
 {
     let len = bounds.end;
 
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn start_fail() -> usize {
+        slice_start_index_overflow_fail()
+    }
+
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    const fn end_fail() -> usize {
+        slice_end_index_overflow_fail()
+    }
+
     let start = match range.start_bound() {
         ops::Bound::Included(&start) => start,
-        ops::Bound::Excluded(start) => {
-            start.checked_add(1).unwrap_or_else(|| slice_start_index_overflow_fail())
-        }
+        ops::Bound::Excluded(start) => start.checked_add(1).unwrap_or_else(start_fail),
         ops::Bound::Unbounded => 0,
     };
 
     let end = match range.end_bound() {
-        ops::Bound::Included(end) => {
-            end.checked_add(1).unwrap_or_else(|| slice_end_index_overflow_fail())
-        }
+        ops::Bound::Included(end) => end.checked_add(1).unwrap_or_else(end_fail),
         ops::Bound::Excluded(&end) => end,
         ops::Bound::Unbounded => len,
     };

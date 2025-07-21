@@ -354,7 +354,8 @@ use crate::vec::{self, Vec};
 /// [Deref]: core::ops::Deref "ops::Deref"
 /// [`Deref`]: core::ops::Deref "ops::Deref"
 /// [`as_str()`]: String::as_str
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
+#[derive_const(PartialEq, PartialOrd, Ord)]
+#[derive(Eq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 #[lang = "String"]
 pub struct String {
@@ -394,7 +395,8 @@ pub struct String {
 /// ```
 #[stable(feature = "rust1", since = "1.0.0")]
 #[cfg_attr(not(no_global_oom_handling), derive(Clone))]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Eq)]
+#[derive_const(PartialEq)]
 pub struct FromUtf8Error {
     bytes: Vec<u8>,
     error: Utf8Error,
@@ -2574,28 +2576,30 @@ impl<'b> Pattern for &'b String {
 macro_rules! impl_eq {
     ($lhs:ty, $rhs: ty) => {
         #[stable(feature = "rust1", since = "1.0.0")]
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
         #[allow(unused_lifetimes)]
-        impl<'a, 'b> PartialEq<$rhs> for $lhs {
+        impl<'a, 'b> const PartialEq<$rhs> for $lhs {
             #[inline]
             fn eq(&self, other: &$rhs) -> bool {
-                PartialEq::eq(&self[..], &other[..])
+                PartialEq::eq(self.as_str(), other.as_str())
             }
             #[inline]
             fn ne(&self, other: &$rhs) -> bool {
-                PartialEq::ne(&self[..], &other[..])
+                PartialEq::ne(self.as_str(), other.as_str())
             }
         }
 
         #[stable(feature = "rust1", since = "1.0.0")]
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
         #[allow(unused_lifetimes)]
-        impl<'a, 'b> PartialEq<$lhs> for $rhs {
+        impl<'a, 'b> const PartialEq<$lhs> for $rhs {
             #[inline]
             fn eq(&self, other: &$lhs) -> bool {
-                PartialEq::eq(&self[..], &other[..])
+                PartialEq::eq(self.as_str(), other.as_str())
             }
             #[inline]
             fn ne(&self, other: &$lhs) -> bool {
-                PartialEq::ne(&self[..], &other[..])
+                PartialEq::ne(self.as_str(), other.as_str())
             }
         }
     };

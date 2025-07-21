@@ -5,9 +5,10 @@ use crate::pin::Pin;
 /// This enum is returned from the `Coroutine::resume` method and indicates the
 /// possible return values of a coroutine. Currently this corresponds to either
 /// a suspension point (`Yielded`) or a termination point (`Complete`).
-#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
+#[derive(Clone, Copy, Eq, Debug, Hash)]
 #[lang = "coroutine_state"]
 #[unstable(feature = "coroutine_trait", issue = "43122")]
+#[derive_const(PartialEq, PartialOrd, Ord)]
 pub enum CoroutineState<Y, R> {
     /// The coroutine suspended with a value.
     ///

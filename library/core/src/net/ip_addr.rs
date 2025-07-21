@@ -27,7 +27,8 @@ use crate::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
 /// ```
 #[rustc_diagnostic_item = "IpAddr"]
 #[stable(feature = "ip_addr", since = "1.7.0")]
-#[derive(Copy, Clone, Eq, PartialEq, Hash, PartialOrd, Ord)]
+#[derive(Copy, Clone, Eq, Hash)]
+#[derive_const(PartialEq, PartialOrd, Ord)]
 pub enum IpAddr {
     /// An IPv4 address.
     #[stable(feature = "ip_addr", since = "1.7.0")]
@@ -69,7 +70,8 @@ pub enum IpAddr {
 /// assert!("0xcb.0x0.0x71.0x00".parse::<Ipv4Addr>().is_err()); // all octets are in hex
 /// ```
 #[rustc_diagnostic_item = "Ipv4Addr"]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, Eq)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Ipv4Addr {
     octets: [u8; 4],
@@ -162,7 +164,8 @@ impl Hash for Ipv4Addr {
 /// assert_eq!(localhost.is_loopback(), true);
 /// ```
 #[rustc_diagnostic_item = "Ipv6Addr"]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, Eq)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct Ipv6Addr {
     octets: [u8; 16],
@@ -213,7 +216,8 @@ impl Hash for Ipv6Addr {
 ///
 /// [IPv6 multicast address]: Ipv6Addr
 /// [IETF RFC 7346 section 2]: https://tools.ietf.org/html/rfc7346#section-2
-#[derive(Copy, PartialEq, Eq, Clone, Hash, Debug)]
+#[derive(Copy, Eq, Clone, Hash, Debug)]
+#[derive_const(PartialEq)]
 #[unstable(feature = "ip", issue = "27709")]
 #[non_exhaustive]
 pub enum Ipv6MulticastScope {
@@ -1162,7 +1166,8 @@ impl fmt::Debug for Ipv4Addr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialEq<Ipv4Addr> for IpAddr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<Ipv4Addr> for IpAddr {
     #[inline]
     fn eq(&self, other: &Ipv4Addr) -> bool {
         match self {
@@ -1173,7 +1178,8 @@ impl PartialEq<Ipv4Addr> for IpAddr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialEq<IpAddr> for Ipv4Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<IpAddr> for Ipv4Addr {
     #[inline]
     fn eq(&self, other: &IpAddr) -> bool {
         match other {
@@ -1184,7 +1190,8 @@ impl PartialEq<IpAddr> for Ipv4Addr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for Ipv4Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for Ipv4Addr {
     #[inline]
     fn partial_cmp(&self, other: &Ipv4Addr) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -1192,7 +1199,8 @@ impl PartialOrd for Ipv4Addr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialOrd<Ipv4Addr> for IpAddr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<Ipv4Addr> for IpAddr {
     #[inline]
     fn partial_cmp(&self, other: &Ipv4Addr) -> Option<Ordering> {
         match self {
@@ -1203,7 +1211,8 @@ impl PartialOrd<Ipv4Addr> for IpAddr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialOrd<IpAddr> for Ipv4Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<IpAddr> for Ipv4Addr {
     #[inline]
     fn partial_cmp(&self, other: &IpAddr) -> Option<Ordering> {
         match other {
@@ -1214,7 +1223,8 @@ impl PartialOrd<IpAddr> for Ipv4Addr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for Ipv4Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for Ipv4Addr {
     #[inline]
     fn cmp(&self, other: &Ipv4Addr) -> Ordering {
         self.octets.cmp(&other.octets)
@@ -2156,7 +2166,8 @@ impl fmt::Debug for Ipv6Addr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialEq<IpAddr> for Ipv6Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<IpAddr> for Ipv6Addr {
     #[inline]
     fn eq(&self, other: &IpAddr) -> bool {
         match other {
@@ -2167,7 +2178,8 @@ impl PartialEq<IpAddr> for Ipv6Addr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialEq<Ipv6Addr> for IpAddr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<Ipv6Addr> for IpAddr {
     #[inline]
     fn eq(&self, other: &Ipv6Addr) -> bool {
         match self {
@@ -2178,7 +2190,8 @@ impl PartialEq<Ipv6Addr> for IpAddr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for Ipv6Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for Ipv6Addr {
     #[inline]
     fn partial_cmp(&self, other: &Ipv6Addr) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -2186,7 +2199,8 @@ impl PartialOrd for Ipv6Addr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialOrd<Ipv6Addr> for IpAddr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<Ipv6Addr> for IpAddr {
     #[inline]
     fn partial_cmp(&self, other: &Ipv6Addr) -> Option<Ordering> {
         match self {
@@ -2197,7 +2211,8 @@ impl PartialOrd<Ipv6Addr> for IpAddr {
 }
 
 #[stable(feature = "ip_cmp", since = "1.16.0")]
-impl PartialOrd<IpAddr> for Ipv6Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<IpAddr> for Ipv6Addr {
     #[inline]
     fn partial_cmp(&self, other: &IpAddr) -> Option<Ordering> {
         match other {
@@ -2208,7 +2223,8 @@ impl PartialOrd<IpAddr> for Ipv6Addr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for Ipv6Addr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for Ipv6Addr {
     #[inline]
     fn cmp(&self, other: &Ipv6Addr) -> Ordering {
         self.segments().cmp(&other.segments())

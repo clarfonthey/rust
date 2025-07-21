@@ -2399,13 +2399,16 @@ impl<T> Default for Rc<[T]> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-trait RcEqIdent<T: ?Sized + PartialEq, A: Allocator> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+#[const_trait]
+trait RcEqIdent<T: ?Sized + ~const PartialEq, A: Allocator> {
     fn eq(&self, other: &Rc<T, A>) -> bool;
     fn ne(&self, other: &Rc<T, A>) -> bool;
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq, A: Allocator> RcEqIdent<T, A> for Rc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialEq, A: Allocator> const RcEqIdent<T, A> for Rc<T, A> {
     #[inline]
     default fn eq(&self, other: &Rc<T, A>) -> bool {
         **self == **other
@@ -2431,7 +2434,8 @@ impl<T: Eq> MarkerEq for T {}
 ///
 /// We can only do this when `T: Eq` as a `PartialEq` might be deliberately irreflexive.
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + MarkerEq, A: Allocator> RcEqIdent<T, A> for Rc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + MarkerEq + ~const PartialEq, A: Allocator> const RcEqIdent<T, A> for Rc<T, A> {
     #[inline]
     fn eq(&self, other: &Rc<T, A>) -> bool {
         Rc::ptr_eq(self, other) || **self == **other
@@ -2444,7 +2448,8 @@ impl<T: ?Sized + MarkerEq, A: Allocator> RcEqIdent<T, A> for Rc<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Rc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialEq, A: Allocator> const PartialEq for Rc<T, A> {
     /// Equality for two `Rc`s.
     ///
     /// Two `Rc`s are equal if their inner values are equal, even if they are
@@ -2495,7 +2500,8 @@ impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Rc<T, A> {
 impl<T: ?Sized + Eq, A: Allocator> Eq for Rc<T, A> {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Rc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialOrd, A: Allocator> const PartialOrd for Rc<T, A> {
     /// Partial comparison for two `Rc`s.
     ///
     /// The two are compared by calling `partial_cmp()` on their inner values.
@@ -2589,7 +2595,8 @@ impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Rc<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + Ord, A: Allocator> Ord for Rc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const Ord, A: Allocator> const Ord for Rc<T, A> {
     /// Comparison for two `Rc`s.
     ///
     /// The two are compared by calling `cmp()` on their inner values.
@@ -3811,7 +3818,8 @@ impl<T: ?Sized, A: Allocator> const AsMut<T> for UniqueRc<T, A> {
 impl<T: ?Sized, A: Allocator> Unpin for UniqueRc<T, A> {}
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for UniqueRc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialEq, A: Allocator> const PartialEq for UniqueRc<T, A> {
     /// Equality for two `UniqueRc`s.
     ///
     /// Two `UniqueRc`s are equal if their inner values are equal.
@@ -3852,7 +3860,8 @@ impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for UniqueRc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for UniqueRc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialOrd, A: Allocator> const PartialOrd for UniqueRc<T, A> {
     /// Partial comparison for two `UniqueRc`s.
     ///
     /// The two are compared by calling `partial_cmp()` on their inner values.
@@ -3951,7 +3960,8 @@ impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for UniqueRc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized + Ord, A: Allocator> Ord for UniqueRc<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const Ord, A: Allocator> const Ord for UniqueRc<T, A> {
     /// Comparison for two `UniqueRc`s.
     ///
     /// The two are compared by calling `cmp()` on their inner values.

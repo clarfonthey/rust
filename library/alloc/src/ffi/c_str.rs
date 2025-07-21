@@ -101,7 +101,8 @@ use crate::vec::Vec;
 /// documentation of `CString` before use, as improper ownership management
 /// of `CString` instances can lead to invalid memory accesses, memory leaks,
 /// and other memory errors.
-#[derive(PartialEq, PartialOrd, Eq, Ord, Hash, Clone)]
+#[derive(Eq, Hash, Clone)]
+#[derive_const(PartialEq, PartialOrd, Ord)]
 #[rustc_diagnostic_item = "cstring_type"]
 #[stable(feature = "alloc_c_string", since = "1.64.0")]
 pub struct CString {
@@ -126,11 +127,13 @@ pub struct CString {
 ///
 /// let _: NulError = CString::new(b"f\0oo".to_vec()).unwrap_err();
 /// ```
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "alloc_c_string", since = "1.64.0")]
 pub struct NulError(usize, Vec<u8>);
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 enum FromBytesWithNulErrorKind {
     InteriorNul(usize),
     NotNulTerminated,
@@ -151,7 +154,8 @@ enum FromBytesWithNulErrorKind {
 ///
 /// let _: FromVecWithNulError = CString::from_vec_with_nul(b"f\0oo".to_vec()).unwrap_err();
 /// ```
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "alloc_c_string", since = "1.64.0")]
 pub struct FromVecWithNulError {
     error_kind: FromBytesWithNulErrorKind,
@@ -217,7 +221,8 @@ impl FromVecWithNulError {
 ///
 /// This `struct` is created by [`CString::into_string()`]. See
 /// its documentation for more.
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "alloc_c_string", since = "1.64.0")]
 pub struct IntoStringError {
     inner: CString,
@@ -1108,7 +1113,8 @@ impl From<&CStr> for CString {
 }
 
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<CStr> for CString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<CStr> for CString {
     #[inline]
     fn eq(&self, other: &CStr) -> bool {
         **self == *other
@@ -1121,7 +1127,8 @@ impl PartialEq<CStr> for CString {
 }
 
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<&CStr> for CString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<&CStr> for CString {
     #[inline]
     fn eq(&self, other: &&CStr) -> bool {
         **self == **other
@@ -1135,7 +1142,8 @@ impl PartialEq<&CStr> for CString {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<Cow<'_, CStr>> for CString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<Cow<'_, CStr>> for CString {
     #[inline]
     fn eq(&self, other: &Cow<'_, CStr>) -> bool {
         **self == **other
@@ -1231,7 +1239,8 @@ impl CStr {
 }
 
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<CString> for CStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<CString> for CStr {
     #[inline]
     fn eq(&self, other: &CString) -> bool {
         *self == **other
@@ -1245,7 +1254,8 @@ impl PartialEq<CString> for CStr {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<Cow<'_, Self>> for CStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<Cow<'_, Self>> for CStr {
     #[inline]
     fn eq(&self, other: &Cow<'_, Self>) -> bool {
         *self == **other
@@ -1259,7 +1269,8 @@ impl PartialEq<Cow<'_, Self>> for CStr {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<CStr> for Cow<'_, CStr> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<CStr> for Cow<'_, CStr> {
     #[inline]
     fn eq(&self, other: &CStr) -> bool {
         **self == *other
@@ -1273,7 +1284,8 @@ impl PartialEq<CStr> for Cow<'_, CStr> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<&CStr> for Cow<'_, CStr> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<&CStr> for Cow<'_, CStr> {
     #[inline]
     fn eq(&self, other: &&CStr) -> bool {
         **self == **other
@@ -1287,7 +1299,8 @@ impl PartialEq<&CStr> for Cow<'_, CStr> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "c_string_eq_c_str", since = "CURRENT_RUSTC_VERSION")]
-impl PartialEq<CString> for Cow<'_, CStr> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<CString> for Cow<'_, CStr> {
     #[inline]
     fn eq(&self, other: &CString) -> bool {
         **self == **other

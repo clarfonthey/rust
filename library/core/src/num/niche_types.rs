@@ -67,21 +67,24 @@ macro_rules! define_valid_range_type {
         // by <https://github.com/rust-lang/compiler-team/issues/807>.
         impl StructuralPartialEq for $name {}
 
-        impl PartialEq for $name {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl const PartialEq for $name {
             #[inline]
             fn eq(&self, other: &Self) -> bool {
                 self.as_inner() == other.as_inner()
             }
         }
 
-        impl Ord for $name {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl const Ord for $name {
             #[inline]
             fn cmp(&self, other: &Self) -> Ordering {
                 Ord::cmp(&self.as_inner(), &other.as_inner())
             }
         }
 
-        impl PartialOrd for $name {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl const PartialOrd for $name {
             #[inline]
             fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
                 Some(Ord::cmp(self, other))

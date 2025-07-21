@@ -44,7 +44,8 @@ pub(crate) mod test;
 mod udp;
 
 /// Possible values which can be passed to the [`TcpStream::shutdown`] method.
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, Eq, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub enum Shutdown {
     /// The reading portion of the [`TcpStream`] should be shut down.

@@ -174,7 +174,7 @@ impl<Dyn: PointeeSized> DynMetadata<Dyn> {
     /// field of `DynMetadata`. To work around that issue, we use `transmute` instead of using a
     /// field projection.
     #[inline]
-    fn vtable_ptr(self) -> *const VTable {
+    const fn vtable_ptr(self) -> *const VTable {
         // SAFETY: this layout assumption is hard-coded into the compiler.
         // If it's somehow not a size match, the transmute will error.
         unsafe { crate::mem::transmute::<Self, *const VTable>(self) }

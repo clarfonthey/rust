@@ -59,7 +59,7 @@ use core::cmp::Ordering;
 use core::hash::{Hash, Hasher};
 #[cfg(not(no_global_oom_handling))]
 use core::iter;
-use core::marker::PhantomData;
+use core::marker::{Destruct, PhantomData};
 use core::mem::{self, ManuallyDrop, MaybeUninit, SizedTypeProperties};
 use core::ops::{self, Index, IndexMut, Range, RangeBounds};
 use core::ptr::{self, NonNull};
@@ -2332,9 +2332,11 @@ impl<T, A: Allocator> Vec<T, A> {
     /// assert_eq!(vec, ["foo", "bar", "baz", "bar"]);
     /// ```
     #[stable(feature = "dedup_by", since = "1.16.0")]
-    pub fn dedup_by<F>(&mut self, mut same_bucket: F)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn dedup_by<F>(&mut self, mut same_bucket: F)
     where
-        F: FnMut(&mut T, &mut T) -> bool,
+        T: ~const Destruct,
+        F: ~const FnMut(&mut T, &mut T) -> bool + ~const Destruct,
     {
         let len = self.len();
         if len <= 1 {
@@ -2379,7 +2381,8 @@ impl<T, A: Allocator> Vec<T, A> {
             vec: &'a mut Vec<T, A>,
         }
 
-        impl<'a, T, A: core::alloc::Allocator> Drop for FillGapOnDrop<'a, T, A> {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a, T, A: core::alloc::Allocator> const Drop for FillGapOnDrop<'a, T, A> {
             fn drop(&mut self) {
                 /* This code gets executed when `same_bucket` panics */
 
@@ -3303,8 +3306,16 @@ impl<T: PartialEq, A: Allocator> Vec<T, A> {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     #[inline]
-    pub fn dedup(&mut self) {
-        self.dedup_by(|a, b| a == b)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn dedup(&mut self)
+    where
+        T: ~const PartialEq + ~const Destruct,
+    {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        const fn dedup_eq<T: ~const PartialEq>(x: &mut T, y: &mut T) -> bool {
+            *x == *y
+        }
+        self.dedup_by(dedup_eq)
     }
 }
 
@@ -3873,9 +3884,10 @@ impl<'a, T: Copy + 'a, A: Allocator> Extend<&'a T> for Vec<T, A> {
 
 /// Implements comparison of vectors, [lexicographically](Ord#lexicographical-comparison).
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T, A1, A2> PartialOrd<Vec<T, A2>> for Vec<T, A1>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T, A1, A2> const PartialOrd<Vec<T, A2>> for Vec<T, A1>
 where
-    T: PartialOrd,
+    T: ~const PartialOrd,
     A1: Allocator,
     A2: Allocator,
 {
@@ -3890,7 +3902,8 @@ impl<T: Eq, A: Allocator> Eq for Vec<T, A> {}
 
 /// Implements ordering of vectors, [lexicographically](Ord#lexicographical-comparison).
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: Ord, A: Allocator> Ord for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const Ord, A: Allocator> const Ord for Vec<T, A> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(&**self, &**other)

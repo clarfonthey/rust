@@ -360,9 +360,11 @@ unsafe impl<T: Clone> DerefPure for Cow<'_, [T]> {}
 impl<B: ?Sized> Eq for Cow<'_, B> where B: Eq + ToOwned {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<B: ?Sized> Ord for Cow<'_, B>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<B: ?Sized> const Ord for Cow<'_, B>
 where
-    B: Ord + ToOwned,
+    B: ~const Ord + ToOwned,
+    B::Owned: ~const Borrow<B>,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
@@ -371,10 +373,13 @@ where
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a, 'b, B: ?Sized, C: ?Sized> PartialEq<Cow<'b, C>> for Cow<'a, B>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a, 'b, B: ?Sized, C: ?Sized> const PartialEq<Cow<'b, C>> for Cow<'a, B>
 where
-    B: PartialEq<C> + ToOwned,
+    B: ~const PartialEq<C> + ToOwned,
+    B::Owned: ~const Borrow<B>,
     C: ToOwned,
+    C::Owned: ~const Borrow<C>,
 {
     #[inline]
     fn eq(&self, other: &Cow<'b, C>) -> bool {
@@ -383,9 +388,11 @@ where
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a, B: ?Sized> const PartialOrd for Cow<'a, B>
 where
-    B: PartialOrd + ToOwned,
+    B: ~const PartialOrd + ToOwned,
+    B::Owned: ~const Borrow<B>,
 {
     #[inline]
     fn partial_cmp(&self, other: &Cow<'a, B>) -> Option<Ordering> {

@@ -1312,7 +1312,8 @@ impl<'a> fmt::Debug for CommandEnvs<'a> {
 ///
 /// [`output`]: Command::output
 /// [`wait_with_output`]: Child::wait_with_output
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Eq, Clone)]
+#[derive_const(PartialEq)]
 #[stable(feature = "process", since = "1.0.0")]
 pub struct Output {
     /// The status (exit code) of the process.
@@ -1776,7 +1777,8 @@ impl From<io::PipeReader> for Stdio {
 // vs `_exit`.  Naming of Unix system calls is not standardised across Unices, so terminology is a
 // matter of convention and tradition.  For clarity we usually speak of `exit`, even when we might
 // mean an underlying system call such as `_exit`.
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Eq, Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "process", since = "1.0.0")]
 pub struct ExitStatus(imp::ExitStatus);
 
@@ -1919,7 +1921,8 @@ impl crate::sealed::Sealed for ExitStatusError {}
 /// run("false").unwrap_err();
 /// # } // cfg!(unix)
 /// ```
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(Eq, Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[unstable(feature = "exit_status_error", issue = "84908")]
 // The definition of imp::ExitStatusError should ideally be such that
 // Result<(), imp::ExitStatusError> has an identical representation to imp::ExitStatus.
@@ -2063,7 +2066,8 @@ impl crate::error::Error for ExitStatusError {}
 ///     ExitCode::SUCCESS
 /// }
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
+#[derive_const(PartialEq)]
 #[stable(feature = "process_exitcode", since = "1.61.0")]
 pub struct ExitCode(imp::ExitCode);
 

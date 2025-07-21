@@ -204,13 +204,15 @@ impl FromStr for f16 {
 ///     println!("Failed conversion to f64: {e}");
 /// }
 /// ```
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
+#[derive_const(PartialEq)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct ParseFloatError {
     kind: FloatErrorKind,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Eq)]
+#[derive_const(PartialEq)]
 enum FloatErrorKind {
     Empty,
     Invalid,

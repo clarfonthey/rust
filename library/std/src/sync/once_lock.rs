@@ -647,7 +647,8 @@ impl<T> From<T> for OnceLock<T> {
 }
 
 #[stable(feature = "once_cell", since = "1.70.0")]
-impl<T: PartialEq> PartialEq for OnceLock<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialEq> const PartialEq for OnceLock<T> {
     /// Equality for two `OnceLock`s.
     ///
     /// Two `OnceLock`s are equal if they either both contain values and their

@@ -52,7 +52,8 @@ impl<T> OnceCell<T> {
     /// Returns `None` if the cell is uninitialized.
     #[inline]
     #[stable(feature = "once_cell", since = "1.70.0")]
-    pub fn get(&self) -> Option<&T> {
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn get(&self) -> Option<&T> {
         // SAFETY: Safe due to `inner`'s invariant
         unsafe { &*self.inner.get() }.as_ref()
     }
@@ -384,7 +385,8 @@ impl<T: Clone> Clone for OnceCell<T> {
 }
 
 #[stable(feature = "once_cell", since = "1.70.0")]
-impl<T: PartialEq> PartialEq for OnceCell<T> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ~const PartialEq> const PartialEq for OnceCell<T> {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
         self.get() == other.get()

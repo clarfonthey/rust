@@ -1812,7 +1812,8 @@ impl Clone for Box<str> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Box<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialEq, A: Allocator> const PartialEq for Box<T, A> {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(&**self, &**other)
@@ -1824,7 +1825,8 @@ impl<T: ?Sized + PartialEq, A: Allocator> PartialEq for Box<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Box<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const PartialOrd, A: Allocator> const PartialOrd for Box<T, A> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         PartialOrd::partial_cmp(&**self, &**other)
@@ -1848,7 +1850,8 @@ impl<T: ?Sized + PartialOrd, A: Allocator> PartialOrd for Box<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized + Ord, A: Allocator> Ord for Box<T, A> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T: ?Sized + ~const Ord, A: Allocator> const Ord for Box<T, A> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(&**self, &**other)

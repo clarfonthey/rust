@@ -4,7 +4,7 @@ use super::{IntErrorKind, ParseIntError};
 use crate::clone::UseCloned;
 use crate::cmp::Ordering;
 use crate::hash::{Hash, Hasher};
-use crate::marker::{Freeze, StructuralPartialEq};
+use crate::marker::{Destruct, Freeze, StructuralPartialEq};
 use crate::ops::{BitOr, BitOrAssign, Div, DivAssign, Neg, Rem, RemAssign};
 use crate::panic::{RefUnwindSafe, UnwindSafe};
 use crate::str::FromStr;
@@ -30,9 +30,9 @@ use crate::{fmt, intrinsics, ptr, ub_checks};
     reason = "implementation detail which may disappear or be replaced at any time",
     issue = "none"
 )]
-pub unsafe trait ZeroablePrimitive: Sized + Copy + private::Sealed {
+pub unsafe trait ZeroablePrimitive: Sized + const Destruct + Copy + private::Sealed {
     #[doc(hidden)]
-    type NonZeroInner: Sized + Copy;
+    type NonZeroInner: Sized + Copy + const Destruct;
 }
 
 macro_rules! impl_zeroable_primitive {
@@ -223,9 +223,10 @@ impl<T> StructuralPartialEq for NonZero<T> where T: ZeroablePrimitive + Structur
 impl<T> Eq for NonZero<T> where T: ZeroablePrimitive + Eq {}
 
 #[stable(feature = "nonzero", since = "1.28.0")]
-impl<T> PartialOrd for NonZero<T>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T> const PartialOrd for NonZero<T>
 where
-    T: ZeroablePrimitive + PartialOrd,
+    T: ZeroablePrimitive + ~const PartialOrd,
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -254,9 +255,10 @@ where
 }
 
 #[stable(feature = "nonzero", since = "1.28.0")]
-impl<T> Ord for NonZero<T>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<T> const Ord for NonZero<T>
 where
-    T: ZeroablePrimitive + Ord,
+    T: ZeroablePrimitive + ~const Ord,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {

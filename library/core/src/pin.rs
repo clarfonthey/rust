@@ -1102,9 +1102,10 @@ pub struct Pin<Ptr> {
 // See <https://internals.rust-lang.org/t/unsoundness-in-pin/11311/73> for more details.
 
 #[stable(feature = "pin_trait_impls", since = "1.41.0")]
-impl<Ptr: Deref, Q: Deref> PartialEq<Pin<Q>> for Pin<Ptr>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<Ptr: ~const Deref, Q: ~const Deref> const PartialEq<Pin<Q>> for Pin<Ptr>
 where
-    Ptr::Target: PartialEq<Q::Target>,
+    Ptr::Target: ~const PartialEq<Q::Target>,
 {
     fn eq(&self, other: &Pin<Q>) -> bool {
         Ptr::Target::eq(self, other)
@@ -1119,9 +1120,10 @@ where
 impl<Ptr: Deref<Target: Eq>> Eq for Pin<Ptr> {}
 
 #[stable(feature = "pin_trait_impls", since = "1.41.0")]
-impl<Ptr: Deref, Q: Deref> PartialOrd<Pin<Q>> for Pin<Ptr>
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<Ptr: ~const Deref, Q: ~const Deref> const PartialOrd<Pin<Q>> for Pin<Ptr>
 where
-    Ptr::Target: PartialOrd<Q::Target>,
+    Ptr::Target: ~const PartialOrd<Q::Target>,
 {
     fn partial_cmp(&self, other: &Pin<Q>) -> Option<cmp::Ordering> {
         Ptr::Target::partial_cmp(self, other)
@@ -1145,7 +1147,8 @@ where
 }
 
 #[stable(feature = "pin_trait_impls", since = "1.41.0")]
-impl<Ptr: Deref<Target: Ord>> Ord for Pin<Ptr> {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<Ptr: ~const Deref<Target: ~const Ord>> const Ord for Pin<Ptr> {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         Ptr::Target::cmp(self, other)
     }

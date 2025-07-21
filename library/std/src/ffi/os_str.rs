@@ -729,7 +729,8 @@ impl fmt::Debug for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq for OsString {
     #[inline]
     fn eq(&self, other: &OsString) -> bool {
         &**self == &**other
@@ -737,7 +738,8 @@ impl PartialEq for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq<str> for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<str> for OsString {
     #[inline]
     fn eq(&self, other: &str) -> bool {
         &**self == other
@@ -745,7 +747,8 @@ impl PartialEq<str> for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq<OsString> for str {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<OsString> for str {
     #[inline]
     fn eq(&self, other: &OsString) -> bool {
         &**other == self
@@ -753,7 +756,8 @@ impl PartialEq<OsString> for str {
 }
 
 #[stable(feature = "os_str_str_ref_eq", since = "1.29.0")]
-impl PartialEq<&str> for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<&str> for OsString {
     #[inline]
     fn eq(&self, other: &&str) -> bool {
         **self == **other
@@ -761,7 +765,8 @@ impl PartialEq<&str> for OsString {
 }
 
 #[stable(feature = "os_str_str_ref_eq", since = "1.29.0")]
-impl<'a> PartialEq<OsString> for &'a str {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl<'a> const PartialEq<OsString> for &'a str {
     #[inline]
     fn eq(&self, other: &OsString) -> bool {
         **other == **self
@@ -772,7 +777,8 @@ impl<'a> PartialEq<OsString> for &'a str {
 impl Eq for OsString {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for OsString {
     #[inline]
     fn partial_cmp(&self, other: &OsString) -> Option<cmp::Ordering> {
         (&**self).partial_cmp(&**other)
@@ -796,7 +802,8 @@ impl PartialOrd for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd<str> for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<str> for OsString {
     #[inline]
     fn partial_cmp(&self, other: &str) -> Option<cmp::Ordering> {
         (&**self).partial_cmp(other)
@@ -804,7 +811,8 @@ impl PartialOrd<str> for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for OsString {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for OsString {
     #[inline]
     fn cmp(&self, other: &OsString) -> cmp::Ordering {
         (&**self).cmp(&**other)
@@ -1495,7 +1503,8 @@ impl Default for &OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq for OsStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq for OsStr {
     #[inline]
     fn eq(&self, other: &OsStr) -> bool {
         self.as_encoded_bytes().eq(other.as_encoded_bytes())
@@ -1503,7 +1512,8 @@ impl PartialEq for OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq<str> for OsStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<str> for OsStr {
     #[inline]
     fn eq(&self, other: &str) -> bool {
         *self == *OsStr::new(other)
@@ -1511,7 +1521,8 @@ impl PartialEq<str> for OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialEq<OsStr> for str {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialEq<OsStr> for str {
     #[inline]
     fn eq(&self, other: &OsStr) -> bool {
         *other == *OsStr::new(self)
@@ -1522,7 +1533,8 @@ impl PartialEq<OsStr> for str {
 impl Eq for OsStr {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd for OsStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd for OsStr {
     #[inline]
     fn partial_cmp(&self, other: &OsStr) -> Option<cmp::Ordering> {
         self.as_encoded_bytes().partial_cmp(other.as_encoded_bytes())
@@ -1546,7 +1558,8 @@ impl PartialOrd for OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl PartialOrd<str> for OsStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const PartialOrd<str> for OsStr {
     #[inline]
     fn partial_cmp(&self, other: &str) -> Option<cmp::Ordering> {
         self.partial_cmp(OsStr::new(other))
@@ -1557,7 +1570,8 @@ impl PartialOrd<str> for OsStr {
 // have more flexible coherence rules.
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Ord for OsStr {
+#[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+impl const Ord for OsStr {
     #[inline]
     fn cmp(&self, other: &OsStr) -> cmp::Ordering {
         self.as_encoded_bytes().cmp(other.as_encoded_bytes())
@@ -1567,7 +1581,8 @@ impl Ord for OsStr {
 macro_rules! impl_cmp {
     ($lhs:ty, $rhs: ty) => {
         #[stable(feature = "cmp_os_str", since = "1.8.0")]
-        impl<'a, 'b> PartialEq<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a, 'b> const PartialEq<$rhs> for $lhs {
             #[inline]
             fn eq(&self, other: &$rhs) -> bool {
                 <OsStr as PartialEq>::eq(self, other)
@@ -1575,7 +1590,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "cmp_os_str", since = "1.8.0")]
-        impl<'a, 'b> PartialEq<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a, 'b> const PartialEq<$lhs> for $rhs {
             #[inline]
             fn eq(&self, other: &$lhs) -> bool {
                 <OsStr as PartialEq>::eq(self, other)
@@ -1583,7 +1599,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "cmp_os_str", since = "1.8.0")]
-        impl<'a, 'b> PartialOrd<$rhs> for $lhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a, 'b> const PartialOrd<$rhs> for $lhs {
             #[inline]
             fn partial_cmp(&self, other: &$rhs) -> Option<cmp::Ordering> {
                 <OsStr as PartialOrd>::partial_cmp(self, other)
@@ -1591,7 +1608,8 @@ macro_rules! impl_cmp {
         }
 
         #[stable(feature = "cmp_os_str", since = "1.8.0")]
-        impl<'a, 'b> PartialOrd<$lhs> for $rhs {
+        #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+        impl<'a, 'b> const PartialOrd<$lhs> for $rhs {
             #[inline]
             fn partial_cmp(&self, other: &$lhs) -> Option<cmp::Ordering> {
                 <OsStr as PartialOrd>::partial_cmp(self, other)

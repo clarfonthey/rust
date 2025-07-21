@@ -12,6 +12,7 @@
 use core::borrow::{Borrow, BorrowMut};
 #[cfg(not(no_global_oom_handling))]
 use core::cmp::Ordering::{self, Less};
+use core::marker::Destruct;
 #[cfg(not(no_global_oom_handling))]
 use core::mem::MaybeUninit;
 #[cfg(not(no_global_oom_handling))]
@@ -130,9 +131,10 @@ impl<T> [T] {
     #[rustc_allow_incoherent_impl]
     #[stable(feature = "rust1", since = "1.0.0")]
     #[inline]
-    pub fn sort(&mut self)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn sort(&mut self)
     where
-        T: Ord,
+        T: ~const Ord,
     {
         stable_sort(self, T::lt);
     }
@@ -191,9 +193,10 @@ impl<T> [T] {
     #[rustc_allow_incoherent_impl]
     #[stable(feature = "rust1", since = "1.0.0")]
     #[inline]
-    pub fn sort_by<F>(&mut self, mut compare: F)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn sort_by<F>(&mut self, mut compare: F)
     where
-        F: FnMut(&T, &T) -> Ordering,
+        F: ~const FnMut(&T, &T) -> Ordering + ~const Destruct,
     {
         stable_sort(self, |a, b| compare(a, b) == Less);
     }
@@ -246,10 +249,11 @@ impl<T> [T] {
     #[rustc_allow_incoherent_impl]
     #[stable(feature = "slice_sort_by_key", since = "1.7.0")]
     #[inline]
-    pub fn sort_by_key<K, F>(&mut self, mut f: F)
+    #[rustc_const_unstable(feature = "const_cmp", issue = "143800")]
+    pub const fn sort_by_key<K, F>(&mut self, mut f: F)
     where
-        F: FnMut(&T) -> K,
-        K: Ord,
+        F: ~const FnMut(&T) -> K + ~const Destruct,
+        K: ~const Ord,
     {
         stable_sort(self, |a, b| f(a).lt(&f(b)));
     }

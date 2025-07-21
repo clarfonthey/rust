@@ -6,7 +6,8 @@ use crate::{error, fmt};
 /// The error contains the message being sent so it can be recovered.
 ///
 /// [`send_timeout`]: super::Sender::send_timeout
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Eq, Clone, Copy)]
+#[derive_const(PartialEq)]
 #[unstable(feature = "mpmc_channel", issue = "126840")]
 pub enum SendTimeoutError<T> {
     /// The message could not be sent because the channel is full and the operation timed out.

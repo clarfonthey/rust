@@ -1201,7 +1201,8 @@ pub fn park_timeout(dur: Duration) {
 ///
 /// [`id`]: Thread::id
 #[stable(feature = "thread_id", since = "1.19.0")]
-#[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
+#[derive_const(PartialEq)]
+#[derive(Eq, Clone, Copy, Hash, Debug)]
 pub struct ThreadId(NonZero<u64>);
 
 impl ThreadId {
