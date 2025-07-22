@@ -560,8 +560,9 @@ impl String {
     #[inline]
     #[stable(feature = "rust1", since = "1.0.0")]
     #[rustc_diagnostic_item = "string_from_utf8"]
-    pub fn from_utf8(vec: Vec<u8>) -> Result<String, FromUtf8Error> {
-        match str::from_utf8(&vec) {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "144288")]
+    pub const fn from_utf8(vec: Vec<u8>) -> Result<String, FromUtf8Error> {
+        match str::from_utf8(vec.as_slice()) {
             Ok(..) => Ok(String { vec }),
             Err(e) => Err(FromUtf8Error { bytes: vec, error: e }),
         }
@@ -1024,7 +1025,8 @@ impl String {
     #[inline]
     #[must_use]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub unsafe fn from_utf8_unchecked(bytes: Vec<u8>) -> String {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "144288")]
+    pub const unsafe fn from_utf8_unchecked(bytes: Vec<u8>) -> String {
         String { vec: bytes }
     }
 
@@ -2168,8 +2170,9 @@ impl FromUtf8Error {
     /// ```
     #[must_use]
     #[stable(feature = "from_utf8_error_as_bytes", since = "1.26.0")]
-    pub fn as_bytes(&self) -> &[u8] {
-        &self.bytes[..]
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "144288")]
+    pub const fn as_bytes(&self) -> &[u8] {
+        &*self.bytes
     }
 
     /// Converts the bytes into a `String` lossily, substituting invalid UTF-8
@@ -2238,7 +2241,8 @@ impl FromUtf8Error {
     /// ```
     #[must_use = "`self` will be dropped if the result is not used"]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn into_bytes(self) -> Vec<u8> {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "144288")]
+    pub const fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
 
@@ -2265,7 +2269,8 @@ impl FromUtf8Error {
     /// ```
     #[must_use]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn utf8_error(&self) -> Utf8Error {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "144288")]
+    pub const fn utf8_error(&self) -> Utf8Error {
         self.error
     }
 }
@@ -2720,7 +2725,8 @@ where
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl ops::Deref for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::Deref for String {
     type Target = str;
 
     #[inline]
@@ -2733,7 +2739,8 @@ impl ops::Deref for String {
 unsafe impl ops::DerefPure for String {}
 
 #[stable(feature = "derefmut_for_string", since = "1.3.0")]
-impl ops::DerefMut for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::DerefMut for String {
     #[inline]
     fn deref_mut(&mut self) -> &mut str {
         self.as_mut_str()
@@ -2985,7 +2992,8 @@ impl SpecToString for fmt::Arguments<'_> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<str> for String {
     #[inline]
     fn as_ref(&self) -> &str {
         self
@@ -2993,7 +3001,8 @@ impl AsRef<str> for String {
 }
 
 #[stable(feature = "string_as_mut", since = "1.43.0")]
-impl AsMut<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsMut<str> for String {
     #[inline]
     fn as_mut(&mut self) -> &mut str {
         self
@@ -3001,7 +3010,8 @@ impl AsMut<str> for String {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<[u8]> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<[u8]> for String {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
@@ -3046,7 +3056,8 @@ impl From<&String> for String {
 
 // note: test pulls in std, which causes errors here
 #[stable(feature = "string_from_box", since = "1.18.0")]
-impl From<Box<str>> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const From<Box<str>> for String {
     /// Converts the given boxed `str` slice to a [`String`].
     /// It is notable that the `str` slice is owned.
     ///
@@ -3109,7 +3120,8 @@ impl<'a> From<Cow<'a, str>> for String {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> From<&'a str> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a str> for Cow<'a, str> {
     /// Converts a string slice into a [`Borrowed`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
@@ -3130,7 +3142,8 @@ impl<'a> From<&'a str> for Cow<'a, str> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> From<String> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<String> for Cow<'a, str> {
     /// Converts a [`String`] into an [`Owned`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
@@ -3153,7 +3166,8 @@ impl<'a> From<String> for Cow<'a, str> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "cow_from_string_ref", since = "1.28.0")]
-impl<'a> From<&'a String> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a String> for Cow<'a, str> {
     /// Converts a [`String`] reference into a [`Borrowed`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
@@ -3198,7 +3212,8 @@ impl<'a> FromIterator<String> for Cow<'a, str> {
 }
 
 #[stable(feature = "from_string_for_vec_u8", since = "1.14.0")]
-impl From<String> for Vec<u8> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const From<String> for Vec<u8> {
     /// Converts the given [`String`] to a vector [`Vec`] that holds values of type [`u8`].
     ///
     /// # Examples
@@ -3217,7 +3232,8 @@ impl From<String> for Vec<u8> {
 }
 
 #[stable(feature = "try_from_vec_u8_for_string", since = "1.87.0")]
-impl TryFrom<Vec<u8>> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const TryFrom<Vec<u8>> for String {
     type Error = FromUtf8Error;
     /// Converts the given [`Vec<u8>`] into a  [`String`] if it contains valid UTF-8 data.
     ///
