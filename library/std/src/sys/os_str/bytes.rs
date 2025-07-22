@@ -31,13 +31,15 @@ impl IntoInner<Vec<u8>> for Buf {
     }
 }
 
-impl FromInner<Vec<u8>> for Buf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const FromInner<Vec<u8>> for Buf {
     fn from_inner(inner: Vec<u8>) -> Self {
         Buf { inner }
     }
 }
 
-impl AsInner<[u8]> for Buf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsInner<[u8]> for Buf {
     #[inline]
     fn as_inner(&self) -> &[u8] {
         &self.inner
@@ -175,7 +177,8 @@ impl Buf {
     }
 
     #[inline]
-    pub fn as_slice(&self) -> &Slice {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn as_slice(&self) -> &Slice {
         // SAFETY: Slice just wraps [u8],
         // and &*self.inner is &[u8], therefore
         // transmuting &[u8] to &Slice is safe.
@@ -183,7 +186,8 @@ impl Buf {
     }
 
     #[inline]
-    pub fn as_mut_slice(&mut self) -> &mut Slice {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn as_mut_slice(&mut self) -> &mut Slice {
         // SAFETY: Slice just wraps [u8],
         // and &mut *self.inner is &mut [u8], therefore
         // transmuting &mut [u8] to &mut Slice is safe.
@@ -247,7 +251,8 @@ impl Slice {
     }
 
     #[inline]
-    pub unsafe fn from_encoded_bytes_unchecked(s: &[u8]) -> &Slice {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const unsafe fn from_encoded_bytes_unchecked(s: &[u8]) -> &Slice {
         unsafe { mem::transmute(s) }
     }
 
@@ -295,7 +300,8 @@ impl Slice {
     }
 
     #[inline]
-    pub fn from_str(s: &str) -> &Slice {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn from_str(s: &str) -> &Slice {
         unsafe { Slice::from_encoded_bytes_unchecked(s.as_bytes()) }
     }
 

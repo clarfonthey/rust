@@ -1917,7 +1917,8 @@ impl<T: ?Sized, A: Allocator> Arc<T, A> {
     }
 
     #[inline]
-    fn inner(&self) -> &ArcInner<T> {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn inner(&self) -> &ArcInner<T> {
         // This unsafety is ok because while this arc is alive we're guaranteed
         // that the inner pointer is valid. Furthermore, we know that the
         // `ArcInner` structure itself is `Sync` because the inner data is
@@ -2233,7 +2234,8 @@ impl<T: ?Sized, A: Allocator + Clone> Clone for Arc<T, A> {
 impl<T: ?Sized, A: Allocator + Clone> UseCloned for Arc<T, A> {}
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized, A: Allocator> Deref for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const Deref for Arc<T, A> {
     type Target = T;
 
     #[inline]
@@ -3997,14 +3999,16 @@ impl<T, I: iter::TrustedLen<Item = T>> ToArcSlice<T> for I {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized, A: Allocator> borrow::Borrow<T> for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const borrow::Borrow<T> for Arc<T, A> {
     fn borrow(&self) -> &T {
         &**self
     }
 }
 
 #[stable(since = "1.5.0", feature = "smart_ptr_as_ref")]
-impl<T: ?Sized, A: Allocator> AsRef<T> for Arc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const AsRef<T> for Arc<T, A> {
     fn as_ref(&self) -> &T {
         &**self
     }
@@ -4207,28 +4211,32 @@ impl<T: ?Sized, A: Allocator> fmt::Pointer for UniqueArc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> borrow::Borrow<T> for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const borrow::Borrow<T> for UniqueArc<T, A> {
     fn borrow(&self) -> &T {
         &**self
     }
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> borrow::BorrowMut<T> for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const borrow::BorrowMut<T> for UniqueArc<T, A> {
     fn borrow_mut(&mut self) -> &mut T {
         &mut **self
     }
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> AsRef<T> for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const AsRef<T> for UniqueArc<T, A> {
     fn as_ref(&self) -> &T {
         &**self
     }
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> AsMut<T> for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const AsMut<T> for UniqueArc<T, A> {
     fn as_mut(&mut self) -> &mut T {
         &mut **self
     }
@@ -4488,7 +4496,8 @@ impl<T: ?Sized, A: Allocator + Clone> UniqueArc<T, A> {
 }
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> Deref for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const Deref for UniqueArc<T, A> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -4502,7 +4511,8 @@ impl<T: ?Sized, A: Allocator> Deref for UniqueArc<T, A> {
 unsafe impl<T: ?Sized> PinCoerceUnsized for UniqueArc<T> {}
 
 #[unstable(feature = "unique_rc_arc", issue = "112566")]
-impl<T: ?Sized, A: Allocator> DerefMut for UniqueArc<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const DerefMut for UniqueArc<T, A> {
     fn deref_mut(&mut self) -> &mut T {
         // SAFETY: This pointer was allocated at creation time so we know it is valid. We know we
         // have unique ownership and therefore it's safe to make a mutable reference because

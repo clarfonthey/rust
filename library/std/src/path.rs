@@ -75,12 +75,11 @@ use crate::error::Error;
 use crate::ffi::{OsStr, OsString, os_str};
 use crate::hash::{Hash, Hasher};
 use crate::iter::FusedIterator;
-use crate::ops::{self, Deref};
 use crate::rc::Rc;
 use crate::str::FromStr;
 use crate::sync::Arc;
 use crate::sys::path::{MAIN_SEP_STR, is_sep_byte, is_verbatim_sep, parse_prefix};
-use crate::{cmp, fmt, fs, io, sys};
+use crate::{cmp, fmt, fs, io, ops, sys};
 
 ////////////////////////////////////////////////////////////////////////////////
 // GENERAL NOTES
@@ -439,7 +438,8 @@ impl<'a> PrefixComponent<'a> {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
     #[inline]
-    pub fn as_os_str(&self) -> &'a OsStr {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "143773")]
+    pub const fn as_os_str(&self) -> &'a OsStr {
         self.raw
     }
 }
@@ -545,7 +545,8 @@ impl<'a> Component<'a> {
     /// ```
     #[must_use = "`self` will be dropped if the result is not used"]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn as_os_str(self) -> &'a OsStr {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "143773")]
+    pub const fn as_os_str(self) -> &'a OsStr {
         match self {
             Component::Prefix(p) => p.as_os_str(),
             Component::RootDir => OsStr::new(MAIN_SEP_STR),
@@ -557,7 +558,8 @@ impl<'a> Component<'a> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for Component<'_> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for Component<'_> {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         self.as_os_str()
@@ -565,7 +567,8 @@ impl AsRef<OsStr> for Component<'_> {
 }
 
 #[stable(feature = "path_component_asref", since = "1.25.0")]
-impl AsRef<Path> for Component<'_> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for Component<'_> {
     #[inline]
     fn as_ref(&self) -> &Path {
         self.as_os_str().as_ref()
@@ -1110,7 +1113,7 @@ impl FusedIterator for Ancestors<'_> {}
 /// An owned, mutable path (akin to [`String`]).
 ///
 /// This type provides methods like [`push`] and [`set_extension`] that mutate
-/// the path in place. It also implements [`Deref`] to [`Path`], meaning that
+/// the path in place. It also implements [`Deref`][ops::Deref] to [`Path`], meaning that
 /// all methods on [`Path`] slices are available on `PathBuf` values as well.
 ///
 /// [`push`]: PathBuf::push
@@ -1235,8 +1238,17 @@ impl PathBuf {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
     #[inline]
-    pub fn as_path(&self) -> &Path {
-        self
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn as_path(&self) -> &Path {
+        Path::new(&self.inner)
+    }
+
+    /// Coerces to a mutable [`Path`] slice.
+    #[must_use]
+    #[inline]
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn as_mut_path(&mut self) -> &mut Path {
+        Path::from_inner_mut(&mut self.inner)
     }
 
     /// Consumes and leaks the `PathBuf`, returning a mutable reference to the contents,
@@ -1847,7 +1859,8 @@ impl<T: ?Sized + AsRef<OsStr>> From<&T> for PathBuf {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl From<OsString> for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const From<OsString> for PathBuf {
     /// Converts an [`OsString`] into a [`PathBuf`].
     ///
     /// This conversion does not allocate or copy memory.
@@ -1945,27 +1958,30 @@ impl fmt::Debug for PathBuf {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl ops::Deref for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::Deref for PathBuf {
     type Target = Path;
     #[inline]
     fn deref(&self) -> &Path {
-        Path::new(&self.inner)
+        self.as_path()
     }
 }
 
 #[stable(feature = "path_buf_deref_mut", since = "1.68.0")]
-impl ops::DerefMut for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::DerefMut for PathBuf {
     #[inline]
     fn deref_mut(&mut self) -> &mut Path {
-        Path::from_inner_mut(&mut self.inner)
+        self.as_mut_path()
     }
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Borrow<Path> for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const Borrow<Path> for PathBuf {
     #[inline]
     fn borrow(&self) -> &Path {
-        self.deref()
+        self.as_path()
     }
 }
 
@@ -1978,7 +1994,8 @@ impl Default for PathBuf {
 }
 
 #[stable(feature = "cow_from_path", since = "1.6.0")]
-impl<'a> From<&'a Path> for Cow<'a, Path> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a Path> for Cow<'a, Path> {
     /// Creates a clone-on-write pointer from a reference to
     /// [`Path`].
     ///
@@ -1990,7 +2007,8 @@ impl<'a> From<&'a Path> for Cow<'a, Path> {
 }
 
 #[stable(feature = "cow_from_path", since = "1.6.0")]
-impl<'a> From<PathBuf> for Cow<'a, Path> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<PathBuf> for Cow<'a, Path> {
     /// Creates a clone-on-write pointer from an owned
     /// instance of [`PathBuf`].
     ///
@@ -2002,7 +2020,8 @@ impl<'a> From<PathBuf> for Cow<'a, Path> {
 }
 
 #[stable(feature = "cow_from_pathbuf_ref", since = "1.28.0")]
-impl<'a> From<&'a PathBuf> for Cow<'a, Path> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a PathBuf> for Cow<'a, Path> {
     /// Creates a clone-on-write pointer from a reference to
     /// [`PathBuf`].
     ///
@@ -2132,10 +2151,11 @@ impl Ord for PathBuf {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for PathBuf {
     #[inline]
     fn as_ref(&self) -> &OsStr {
-        &self.inner[..]
+        &self.inner
     }
 }
 
@@ -2232,11 +2252,13 @@ impl Path {
     /// assert_eq!(from_string, from_path);
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn new<S: AsRef<OsStr> + ?Sized>(s: &S) -> &Path {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn new<S: ~const AsRef<OsStr> + ?Sized>(s: &S) -> &Path {
         unsafe { &*(s.as_ref() as *const OsStr as *const Path) }
     }
 
-    fn from_inner_mut(inner: &mut OsStr) -> &mut Path {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn from_inner_mut(inner: &mut OsStr) -> &mut Path {
         // SAFETY: Path is just a wrapper around OsStr,
         // therefore converting &mut OsStr to &mut Path is safe.
         unsafe { &mut *(inner as *mut OsStr as *mut Path) }
@@ -3303,7 +3325,8 @@ unsafe impl CloneToUninit for Path {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for Path {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for Path {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         &self.inner
@@ -3440,7 +3463,8 @@ impl Ord for Path {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for Path {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for Path {
     #[inline]
     fn as_ref(&self) -> &Path {
         self
@@ -3448,7 +3472,8 @@ impl AsRef<Path> for Path {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for OsStr {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for OsStr {
     #[inline]
     fn as_ref(&self) -> &Path {
         Path::new(self)
@@ -3456,7 +3481,8 @@ impl AsRef<Path> for OsStr {
 }
 
 #[stable(feature = "cow_os_str_as_ref_path", since = "1.8.0")]
-impl AsRef<Path> for Cow<'_, OsStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for Cow<'_, OsStr> {
     #[inline]
     fn as_ref(&self) -> &Path {
         Path::new(self)
@@ -3464,7 +3490,8 @@ impl AsRef<Path> for Cow<'_, OsStr> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for OsString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for OsString {
     #[inline]
     fn as_ref(&self) -> &Path {
         Path::new(self)
@@ -3472,7 +3499,8 @@ impl AsRef<Path> for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for str {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for str {
     #[inline]
     fn as_ref(&self) -> &Path {
         Path::new(self)
@@ -3480,7 +3508,8 @@ impl AsRef<Path> for str {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for String {
     #[inline]
     fn as_ref(&self) -> &Path {
         Path::new(self)
@@ -3488,7 +3517,8 @@ impl AsRef<Path> for String {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<Path> for PathBuf {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<Path> for PathBuf {
     #[inline]
     fn as_ref(&self) -> &Path {
         self

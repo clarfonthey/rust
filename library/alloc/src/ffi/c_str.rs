@@ -538,7 +538,8 @@ impl CString {
     #[inline]
     #[must_use]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn as_bytes(&self) -> &[u8] {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "143773")]
+    pub const fn as_bytes(&self) -> &[u8] {
         // SAFETY: CString has a length at least 1
         unsafe { self.inner.get_unchecked(..self.inner.len() - 1) }
     }
@@ -558,7 +559,8 @@ impl CString {
     #[inline]
     #[must_use]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn as_bytes_with_nul(&self) -> &[u8] {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "143773")]
+    pub const fn as_bytes_with_nul(&self) -> &[u8] {
         &self.inner
     }
 
@@ -578,7 +580,8 @@ impl CString {
     #[must_use]
     #[stable(feature = "as_c_str", since = "1.20.0")]
     #[rustc_diagnostic_item = "cstring_as_c_str"]
-    pub fn as_c_str(&self) -> &CStr {
+    #[rustc_const_unstable(feature = "const_convert_methods", issue = "143773")]
+    pub const fn as_c_str(&self) -> &CStr {
         unsafe { CStr::from_bytes_with_nul_unchecked(self.as_bytes_with_nul()) }
     }
 
@@ -705,7 +708,8 @@ impl Drop for CString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl ops::Deref for CString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::Deref for CString {
     type Target = CStr;
 
     #[inline]
@@ -744,7 +748,8 @@ impl Default for CString {
 }
 
 #[stable(feature = "cstr_borrow", since = "1.3.0")]
-impl Borrow<CStr> for CString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const Borrow<CStr> for CString {
     #[inline]
     fn borrow(&self) -> &CStr {
         self
@@ -869,7 +874,8 @@ impl From<CString> for Box<CStr> {
 }
 
 #[stable(feature = "cow_from_cstr", since = "1.28.0")]
-impl<'a> From<CString> for Cow<'a, CStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<CString> for Cow<'a, CStr> {
     /// Converts a [`CString`] into an owned [`Cow`] without copying or allocating.
     #[inline]
     fn from(s: CString) -> Cow<'a, CStr> {
@@ -878,7 +884,8 @@ impl<'a> From<CString> for Cow<'a, CStr> {
 }
 
 #[stable(feature = "cow_from_cstr", since = "1.28.0")]
-impl<'a> From<&'a CStr> for Cow<'a, CStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a CStr> for Cow<'a, CStr> {
     /// Converts a [`CStr`] into a borrowed [`Cow`] without copying or allocating.
     #[inline]
     fn from(s: &'a CStr) -> Cow<'a, CStr> {
@@ -887,7 +894,8 @@ impl<'a> From<&'a CStr> for Cow<'a, CStr> {
 }
 
 #[stable(feature = "cow_from_cstr", since = "1.28.0")]
-impl<'a> From<&'a CString> for Cow<'a, CStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a CString> for Cow<'a, CStr> {
     /// Converts a `&`[`CString`] into a borrowed [`Cow`] without copying or allocating.
     #[inline]
     fn from(s: &'a CString) -> Cow<'a, CStr> {
@@ -1150,7 +1158,8 @@ impl ops::Index<ops::RangeFull> for CString {
 }
 
 #[stable(feature = "cstring_asref", since = "1.7.0")]
-impl AsRef<CStr> for CString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<CStr> for CString {
     #[inline]
     fn as_ref(&self) -> &CStr {
         self

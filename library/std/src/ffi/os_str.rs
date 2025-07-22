@@ -200,8 +200,17 @@ impl OsString {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
     #[inline]
-    pub fn as_os_str(&self) -> &OsStr {
-        self
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn as_os_str(&self) -> &OsStr {
+        OsStr::from_inner(self.inner.as_slice())
+    }
+
+    /// Converts to a mutable [`OsStr`] slice.
+    #[must_use]
+    #[inline]
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn as_mut_os_str(&mut self) -> &mut OsStr {
+        OsStr::from_inner_mut(self.inner.as_mut_slice())
     }
 
     /// Converts the `OsString` into a byte vector.  To convert the byte vector back into an
@@ -654,7 +663,7 @@ impl ops::Index<ops::RangeFull> for OsString {
 
     #[inline]
     fn index(&self, _index: ops::RangeFull) -> &OsStr {
-        OsStr::from_inner(self.inner.as_slice())
+        &**self
     }
 }
 
@@ -662,25 +671,27 @@ impl ops::Index<ops::RangeFull> for OsString {
 impl ops::IndexMut<ops::RangeFull> for OsString {
     #[inline]
     fn index_mut(&mut self, _index: ops::RangeFull) -> &mut OsStr {
-        OsStr::from_inner_mut(self.inner.as_mut_slice())
+        &mut **self
     }
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl ops::Deref for OsString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::Deref for OsString {
     type Target = OsStr;
 
     #[inline]
     fn deref(&self) -> &OsStr {
-        &self[..]
+        self.as_os_str()
     }
 }
 
 #[stable(feature = "mut_osstr", since = "1.44.0")]
-impl ops::DerefMut for OsString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::DerefMut for OsString {
     #[inline]
     fn deref_mut(&mut self) -> &mut OsStr {
-        &mut self[..]
+        self.as_mut_os_str()
     }
 }
 
@@ -828,7 +839,8 @@ impl OsStr {
     /// ```
     #[inline]
     #[stable(feature = "rust1", since = "1.0.0")]
-    pub fn new<S: AsRef<OsStr> + ?Sized>(s: &S) -> &OsStr {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    pub const fn new<S: ~const AsRef<OsStr> + ?Sized>(s: &S) -> &OsStr {
         s.as_ref()
     }
 
@@ -876,14 +888,16 @@ impl OsStr {
     }
 
     #[inline]
-    fn from_inner(inner: &Slice) -> &OsStr {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn from_inner(inner: &Slice) -> &OsStr {
         // SAFETY: OsStr is just a wrapper of Slice,
         // therefore converting &Slice to &OsStr is safe.
         unsafe { &*(inner as *const Slice as *const OsStr) }
     }
 
     #[inline]
-    fn from_inner_mut(inner: &mut Slice) -> &mut OsStr {
+    #[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+    const fn from_inner_mut(inner: &mut Slice) -> &mut OsStr {
         // SAFETY: OsStr is just a wrapper of Slice,
         // therefore converting &mut Slice to &mut OsStr is safe.
         // Any method that mutates OsStr must be careful not to
@@ -1405,7 +1419,8 @@ impl From<&mut OsStr> for Rc<OsStr> {
 }
 
 #[stable(feature = "cow_from_osstr", since = "1.28.0")]
-impl<'a> From<OsString> for Cow<'a, OsStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<OsString> for Cow<'a, OsStr> {
     /// Moves the string into a [`Cow::Owned`].
     #[inline]
     fn from(s: OsString) -> Cow<'a, OsStr> {
@@ -1414,7 +1429,8 @@ impl<'a> From<OsString> for Cow<'a, OsStr> {
 }
 
 #[stable(feature = "cow_from_osstr", since = "1.28.0")]
-impl<'a> From<&'a OsStr> for Cow<'a, OsStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a OsStr> for Cow<'a, OsStr> {
     /// Converts the string reference into a [`Cow::Borrowed`].
     #[inline]
     fn from(s: &'a OsStr) -> Cow<'a, OsStr> {
@@ -1423,7 +1439,8 @@ impl<'a> From<&'a OsStr> for Cow<'a, OsStr> {
 }
 
 #[stable(feature = "cow_from_osstr", since = "1.28.0")]
-impl<'a> From<&'a OsString> for Cow<'a, OsStr> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a OsString> for Cow<'a, OsStr> {
     /// Converts the string reference into a [`Cow::Borrowed`].
     #[inline]
     fn from(s: &'a OsString) -> Cow<'a, OsStr> {
@@ -1660,10 +1677,11 @@ impl<S: Borrow<OsStr>> alloc::slice::Join<&OsStr> for [S] {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Borrow<OsStr> for OsString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const Borrow<OsStr> for OsString {
     #[inline]
     fn borrow(&self) -> &OsStr {
-        &self[..]
+        &**self
     }
 }
 
@@ -1681,7 +1699,8 @@ impl ToOwned for OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for OsStr {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for OsStr {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         self
@@ -1689,7 +1708,8 @@ impl AsRef<OsStr> for OsStr {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for OsString {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for OsString {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         self
@@ -1697,7 +1717,8 @@ impl AsRef<OsStr> for OsString {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for str {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for str {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         OsStr::from_inner(Slice::from_str(self))
@@ -1705,7 +1726,8 @@ impl AsRef<OsStr> for str {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<OsStr> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<OsStr> for String {
     #[inline]
     fn as_ref(&self) -> &OsStr {
         (&**self).as_ref()

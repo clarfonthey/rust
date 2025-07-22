@@ -1942,7 +1942,8 @@ impl<T: ?Sized, A: Allocator> fmt::Pointer for Box<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized, A: Allocator> Deref for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const Deref for Box<T, A> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -1951,7 +1952,8 @@ impl<T: ?Sized, A: Allocator> Deref for Box<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T: ?Sized, A: Allocator> DerefMut for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const DerefMut for Box<T, A> {
     fn deref_mut(&mut self) -> &mut T {
         &mut **self
     }
@@ -2028,28 +2030,32 @@ unsafe impl<T: ?Sized, A: Allocator> PinCoerceUnsized for Box<T, A> {}
 impl<T: ?Sized + Unsize<U>, U: ?Sized> DispatchFromDyn<Box<U>> for Box<T, Global> {}
 
 #[stable(feature = "box_borrow", since = "1.1.0")]
-impl<T: ?Sized, A: Allocator> Borrow<T> for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const Borrow<T> for Box<T, A> {
     fn borrow(&self) -> &T {
         &**self
     }
 }
 
 #[stable(feature = "box_borrow", since = "1.1.0")]
-impl<T: ?Sized, A: Allocator> BorrowMut<T> for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const BorrowMut<T> for Box<T, A> {
     fn borrow_mut(&mut self) -> &mut T {
         &mut **self
     }
 }
 
 #[stable(since = "1.5.0", feature = "smart_ptr_as_ref")]
-impl<T: ?Sized, A: Allocator> AsRef<T> for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const AsRef<T> for Box<T, A> {
     fn as_ref(&self) -> &T {
         &**self
     }
 }
 
 #[stable(since = "1.5.0", feature = "smart_ptr_as_ref")]
-impl<T: ?Sized, A: Allocator> AsMut<T> for Box<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T: ?Sized, A: Allocator> const AsMut<T> for Box<T, A> {
     fn as_mut(&mut self) -> &mut T {
         &mut **self
     }

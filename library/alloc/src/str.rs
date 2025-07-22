@@ -186,18 +186,20 @@ where
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl Borrow<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const Borrow<str> for String {
     #[inline]
     fn borrow(&self) -> &str {
-        &self[..]
+        &**self
     }
 }
 
 #[stable(feature = "string_borrow_mut", since = "1.36.0")]
-impl BorrowMut<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const BorrowMut<str> for String {
     #[inline]
     fn borrow_mut(&mut self) -> &mut str {
-        &mut self[..]
+        &mut **self
     }
 }
 

@@ -186,7 +186,7 @@ impl<T> IntoBounds<T> for Range<T> {
 }
 
 #[unstable(feature = "new_range_api", issue = "125687")]
-#[rustc_const_unstable(feature = "const_index", issue = "143775")]
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
 impl<T> const From<Range<T>> for legacy::Range<T> {
     #[inline]
     fn from(value: Range<T>) -> Self {
@@ -195,7 +195,7 @@ impl<T> const From<Range<T>> for legacy::Range<T> {
 }
 
 #[unstable(feature = "new_range_api", issue = "125687")]
-#[rustc_const_unstable(feature = "const_index", issue = "143775")]
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
 impl<T> const From<legacy::Range<T>> for Range<T> {
     #[inline]
     fn from(value: legacy::Range<T>) -> Self {
@@ -365,7 +365,7 @@ impl<T> IntoBounds<T> for RangeInclusive<T> {
 }
 
 #[unstable(feature = "new_range_api", issue = "125687")]
-#[rustc_const_unstable(feature = "const_index", issue = "143775")]
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
 impl<T> const From<RangeInclusive<T>> for legacy::RangeInclusive<T> {
     #[inline]
     fn from(value: RangeInclusive<T>) -> Self {
@@ -373,7 +373,8 @@ impl<T> const From<RangeInclusive<T>> for legacy::RangeInclusive<T> {
     }
 }
 #[unstable(feature = "new_range_api", issue = "125687")]
-impl<T> From<legacy::RangeInclusive<T>> for RangeInclusive<T> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T> const From<legacy::RangeInclusive<T>> for RangeInclusive<T> {
     #[inline]
     fn from(value: legacy::RangeInclusive<T>) -> Self {
         assert!(

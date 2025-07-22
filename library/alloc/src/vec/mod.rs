@@ -3392,7 +3392,8 @@ impl<T: Copy, A: Allocator> ExtendFromWithinSpec for Vec<T, A> {
 ////////////////////////////////////////////////////////////////////////////////
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T, A: Allocator> ops::Deref for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const ops::Deref for Vec<T, A> {
     type Target = [T];
 
     #[inline]
@@ -3402,7 +3403,8 @@ impl<T, A: Allocator> ops::Deref for Vec<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T, A: Allocator> ops::DerefMut for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const ops::DerefMut for Vec<T, A> {
     #[inline]
     fn deref_mut(&mut self) -> &mut [T] {
         self.as_mut_slice()
@@ -3927,28 +3929,32 @@ impl<T: fmt::Debug, A: Allocator> fmt::Debug for Vec<T, A> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T, A: Allocator> AsRef<Vec<T, A>> for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const AsRef<Vec<T, A>> for Vec<T, A> {
     fn as_ref(&self) -> &Vec<T, A> {
         self
     }
 }
 
 #[stable(feature = "vec_as_mut", since = "1.5.0")]
-impl<T, A: Allocator> AsMut<Vec<T, A>> for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const AsMut<Vec<T, A>> for Vec<T, A> {
     fn as_mut(&mut self) -> &mut Vec<T, A> {
         self
     }
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<T, A: Allocator> AsRef<[T]> for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const AsRef<[T]> for Vec<T, A> {
     fn as_ref(&self) -> &[T] {
         self
     }
 }
 
 #[stable(feature = "vec_as_mut", since = "1.5.0")]
-impl<T, A: Allocator> AsMut<[T]> for Vec<T, A> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<T, A: Allocator> const AsMut<[T]> for Vec<T, A> {
     fn as_mut(&mut self) -> &mut [T] {
         self
     }

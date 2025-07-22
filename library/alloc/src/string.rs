@@ -2730,7 +2730,8 @@ where
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl ops::Deref for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::Deref for String {
     type Target = str;
 
     #[inline]
@@ -2743,7 +2744,8 @@ impl ops::Deref for String {
 unsafe impl ops::DerefPure for String {}
 
 #[stable(feature = "derefmut_for_string", since = "1.3.0")]
-impl ops::DerefMut for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const ops::DerefMut for String {
     #[inline]
     fn deref_mut(&mut self) -> &mut str {
         self.as_mut_str()
@@ -3022,7 +3024,8 @@ impl SpecToString for fmt::Arguments<'_> {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<str> for String {
     #[inline]
     fn as_ref(&self) -> &str {
         self
@@ -3030,7 +3033,8 @@ impl AsRef<str> for String {
 }
 
 #[stable(feature = "string_as_mut", since = "1.43.0")]
-impl AsMut<str> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsMut<str> for String {
     #[inline]
     fn as_mut(&mut self) -> &mut str {
         self
@@ -3038,7 +3042,8 @@ impl AsMut<str> for String {
 }
 
 #[stable(feature = "rust1", since = "1.0.0")]
-impl AsRef<[u8]> for String {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl const AsRef<[u8]> for String {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
@@ -3146,7 +3151,8 @@ impl<'a> From<Cow<'a, str>> for String {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> From<&'a str> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a str> for Cow<'a, str> {
     /// Converts a string slice into a [`Borrowed`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
@@ -3167,7 +3173,8 @@ impl<'a> From<&'a str> for Cow<'a, str> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "rust1", since = "1.0.0")]
-impl<'a> From<String> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<String> for Cow<'a, str> {
     /// Converts a [`String`] into an [`Owned`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
@@ -3190,7 +3197,8 @@ impl<'a> From<String> for Cow<'a, str> {
 
 #[cfg(not(no_global_oom_handling))]
 #[stable(feature = "cow_from_string_ref", since = "1.28.0")]
-impl<'a> From<&'a String> for Cow<'a, str> {
+#[rustc_const_unstable(feature = "const_convert", issue = "143773")]
+impl<'a> const From<&'a String> for Cow<'a, str> {
     /// Converts a [`String`] reference into a [`Borrowed`] variant.
     /// No heap allocation is performed, and the string
     /// is not copied.
