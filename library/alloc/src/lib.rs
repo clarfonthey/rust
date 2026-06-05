@@ -113,6 +113,7 @@
 #![feature(const_try)]
 #![feature(copied_into_inner)]
 #![feature(core_intrinsics)]
+#![feature(core_to_owned)]
 #![feature(deprecated_suggestion)]
 #![feature(deref_pure_trait)]
 #![feature(diagnostic_on_move)]
