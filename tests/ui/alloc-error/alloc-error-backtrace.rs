@@ -41,6 +41,10 @@ fn main() {
         .strip_suffix("qemu: uncaught target signal 6 (Aborted) - core dumped\n")
         .unwrap_or(stderr);
 
-    assert!(stderr.contains("memory allocation of 42 bytes failed"), "{}", stderr);
+    assert!(
+        stderr.contains("memory allocation of 42 bytes (aligned to 1 byte) failed"),
+        "{}",
+        stderr
+    );
     assert!(stderr.contains("alloc_error_backtrace::main"), "{}", stderr);
 }

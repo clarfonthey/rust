@@ -24,7 +24,7 @@ fn main() {
 
     assert_eq!(
         stderr,
-        "memory allocation of 42 bytes failed\n\
+        "memory allocation of 42 bytes (aligned to 1 byte) failed\n\
         note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
     );
 }

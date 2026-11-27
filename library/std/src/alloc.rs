@@ -350,7 +350,11 @@ static HOOK: AtomicPtr<()> = AtomicPtr::new(ptr::null_mut());
 /// use std::alloc::{Layout, set_alloc_error_hook};
 ///
 /// fn custom_alloc_error_hook(layout: Layout) {
-///    panic!("memory allocation of {} bytes failed", layout.size());
+///     let size = layout.size();
+///     let align = layout.align();
+///     let size_s = if size == 1 { "" } else { "s" };
+///     let align_s = if align == 1 { "" } else { "s" };
+///     panic!("memory allocation of {size} byte{size_s} (aligned to {align} byte{align_s}) failed");
 /// }
 ///
 /// set_alloc_error_hook(custom_alloc_error_hook);
@@ -386,17 +390,25 @@ fn default_alloc_error_hook(layout: Layout) {
     // user-defined code.
 
     static PREV_ALLOC_FAILURE: AtomicBool = AtomicBool::new(false);
-    if PREV_ALLOC_FAILURE.swap(true, Ordering::Relaxed) {
-        // Don't try to print a backtrace if a previous alloc error happened. This likely means
-        // there is not enough memory to print a backtrace, although it could also mean that two
-        // threads concurrently run out of memory.
-        rtprintpanic!(
-            "memory allocation of {} bytes failed\nskipping backtrace printing to avoid potential recursion\n",
-            layout.size()
-        );
-        return;
+    // Don't try to print a backtrace if a previous alloc error happened. This likely means
+    // there is not enough memory to print a backtrace, although it could also mean that two
+    // threads concurrently run out of memory.
+    let skip_backtrace = PREV_ALLOC_FAILURE.swap(true, Ordering::Relaxed);
+    let size = layout.size();
+    let align = layout.align();
+    let size_s = if size == 1 { "" } else { "s" };
+    let align_s = if align == 1 { "" } else { "s" };
+    let skip_backtrace_message = if skip_backtrace {
+        "skipping backtrace printing to avoid potential recursion\n"
     } else {
-        rtprintpanic!("memory allocation of {} bytes failed\n", layout.size());
+        ""
+    };
+    rtprintpanic!(
+        "memory allocation of {size} byte{size_s} (aligned to {align} byte{align_s}) failed\n\
+        {skip_backtrace_message}"
+    );
+    if skip_backtrace {
+        return;
     }
 
     let Some(mut out) = crate::sys::stdio::panic_output() else {

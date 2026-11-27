@@ -694,9 +694,13 @@ pub mod __alloc_error_handler {
     // called via generated `__rust_alloc_error_handler` if there is no
     // `#[alloc_error_handler]`.
     #[rustc_std_internal_symbol]
-    pub unsafe fn __rdl_alloc_error_handler(size: usize, _align: usize) -> ! {
+    pub unsafe fn __rdl_alloc_error_handler(size: usize, align: usize) -> ! {
         core::panicking::panic_nounwind_fmt(
-            format_args!("memory allocation of {size} bytes failed"),
+            format_args!(
+                "memory allocation of {size} byte{size_s} (aligned to {align} byte{align_s}) failed",
+                size_s = if size == 1 { "" } else { "s" },
+                align_s = if align == 1 { "" } else { "s" },
+            ),
             /* force_no_backtrace */ false,
         )
     }
